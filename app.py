@@ -1,9 +1,9 @@
 import sqlite3
 
 from flask import Flask, flash, g, redirect, render_template, request, session
+from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_session import Session
 from functools import wraps
-from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 
@@ -99,6 +99,7 @@ def login():
     # Renders the login page 
     return render_template("login.html", error=error)
 
+
 @app.route("/logout")
 def logout():
     # Forgets any user_id
@@ -134,9 +135,10 @@ def register():
             return redirect("/error")
         else:
             # Hashes the users password
+            hashedPassword = generate_password_hash(password)
 
             # Insert their username and their hashed password into the users table
-            cursor.execute("INSERT INTO users(username, password) VALUES(?, ?)", (username, password))
+            cursor.execute("INSERT INTO users(username, password) VALUES(?, ?)", (username, hashedPassword))
             cursor.connection.commit()
 
             # Logs the user in
@@ -150,3 +152,11 @@ def register():
             return redirect("/")
 
     return render_template("register.html")
+
+@app.route("/level1")
+def level1():
+    return render_template("levels/level1.html")
+
+@app.route("/level2")
+def level2():
+    return render_template("levels/level2.html")

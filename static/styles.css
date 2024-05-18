@@ -18,28 +18,28 @@
 #navbar h1 {
     color: white;
     font-style: italic;
-  }
+}
   
-  #navbar a {
+#navbar a {
     text-decoration: none;
-  }
+}
   
-  #navbar ul {
+#navbar ul {
     display: flex;
     list-style-type: none;
     
-  }
+}
   
-  #navbar li {
+#navbar li {
     color: #9b9d9e;
     margin-left: 2em;
-  }
+}
   
-  #navbar li:visited {
+#navbar li:visited {
     color: #9b9d9e;
-  }
+}
   
-  #navbar li:hover {
+#navbar li:hover {
     color: #aaacad;
     transition: 0.2s;
-  }
+}
