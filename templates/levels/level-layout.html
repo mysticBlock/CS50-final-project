@@ -5,31 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./static/styles.css">
     <title>Type Journey: {% block title %}{% endblock %}</title>
-    <style>
-            .letter {
-                display: inline-block;
-                font-size: 2em;
-            }
-            .correct {
-                color: green;
-            }
-            .incorrect {
-                color: red;
-            }
-        </style>
   </head>
   <body>
     <header>
       <nav id="level-navbar">
         <h1>{% block level %}{% endblock %}</h1>
         <ul>
-            <li><a>exit</a></li>
+            <li><a href="/">exit</a></li>
         </ul>
       </nav>
     </header>
     <main>
         {% block main %}{% endblock %}
     </main>
-    <script src="static/levels.js"></script>
+    {% block script %}{% endblock %}
   </body>
 </html>

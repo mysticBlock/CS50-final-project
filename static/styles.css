@@ -43,3 +43,15 @@
     color: #aaacad;
     transition: 0.2s;
 }
+
+/* level functionality styles */
+.letter {
+    display: inline-block;
+    font-size: 2em;
+}
+.correct {
+    color: green;
+}
+.incorrect {
+    color: red;
+}

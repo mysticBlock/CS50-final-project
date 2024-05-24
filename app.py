@@ -153,10 +153,22 @@ def register():
 
     return render_template("register.html")
 
-@app.route("/level1")
-def level1():
-    return render_template("levels/level1.html")
+@app.route("/tutorial-results")
+def tutorialResults():
+    currentLevel = 1 #TODO
+    return render_template("levels/tutorial-results.html")
 
-@app.route("/level2")
-def level2():
-    return render_template("levels/level2.html")
+@app.route("/review-results")
+def reviewResults():
+    
+    correctCount = request.args.get("correctCount", 0)
+    incorrectCount = request.args.get("incorrectCount", 0)
+    return render_template("levels/review-results.html", correctCount=correctCount, incorrectCount=incorrectCount)
+
+@app.route("/1-f&j-tutorial")
+def fjTutorial():
+    return render_template("levels/1-f&j-tutorial.html")
+
+@app.route("/2-f&j-review")
+def fjReview():
+    return render_template("levels/2-f&j-review.html")

@@ -1,0 +1,13 @@
+{% extends "levels/level-layout.html" %}
+{% block title %}
+    Level 1
+{% endblock %}
+{% block level %}
+    Level 1
+{% endblock %}
+
+{% block main %}
+    <h1>Level Complete!</h1>
+    <p>Correct Letters: {{ correctCount }}</p>
+    <p>Incorrect Letters: {{ incorrectCount }}</p>
+{% endblock %}
