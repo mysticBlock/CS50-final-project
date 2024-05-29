@@ -1,6 +1,6 @@
 import sqlite3
 
-from flask import Flask, flash, g, redirect, render_template, request, session
+from flask import Flask, flash, g, jsonify, redirect, render_template, request, session
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_session import Session
 from functools import wraps
@@ -28,7 +28,7 @@ def get_db():
         g.cursor = g.db.cursor()
     return g.cursor
 
-    # Automatically closes the database connection when the request ends
+# Automatically closes the database connection when the request ends
 @app.teardown_appcontext
 def close_db(error):
     if hasattr(g, 'db'):
@@ -153,22 +153,37 @@ def register():
 
     return render_template("register.html")
 
-@app.route("/tutorial-results")
-def tutorialResults():
-    currentLevel = 1 #TODO
-    return render_template("levels/tutorial-results.html")
 
-@app.route("/review-results")
-def reviewResults():
-    
-    correctCount = request.args.get("correctCount", 0)
-    incorrectCount = request.args.get("incorrectCount", 0)
-    return render_template("levels/review-results.html", correctCount=correctCount, incorrectCount=incorrectCount)
+# Dynamic route for all levels
+@app.route("/levels/<level_type>/<level_number>")
+@login_required
+def level_view(level_type, level_number):
+    # Determines the type of level the user navigated to
+    page = request.path
+    isReview = "review" in page
+    isTutorial = "tutorial" in page
+    templateName = f"levels/level_{level_number}_{level_type}.html"
+    return render_template(templateName, isReview=isReview, isTutorial=isTutorial)
 
-@app.route("/1-f&j-tutorial")
-def fjTutorial():
-    return render_template("levels/1-f&j-tutorial.html")
 
-@app.route("/2-f&j-review")
-def fjReview():
-    return render_template("levels/2-f&j-review.html")
+@app.route("/review-results", methods=["POST"])
+@login_required
+def review_results():
+    data = request.get_json()  # Get the JSON data sent from the client
+    correct_count = data.get("correctCount")
+    incorrect_count = data.get("incorrectCount")
+
+    # Handle the data as needed (e.g., save to the database, perform calculations, etc.)
+    # For example, saving to the database:
+    user_id = session["user_id"]
+    level_number = 2  # Example value, adjust as needed
+    level_type = "review"  # Example value, adjust as needed
+    # Calculate other necessary fields like time_taken and wpm if applicable
+
+    # Example database insertion (make sure you have an appropriate table defined)
+    cursor = get_db()
+    cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm) VALUES (?, ?, ?, ?, ?, ?)",
+                   (user_id, level_number, correct_count, incorrect_count, time_taken, wpm))
+    cursor.connection.commit()
+
+    return jsonify({"message": "Results received successfully"})
