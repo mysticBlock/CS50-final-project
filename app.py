@@ -163,27 +163,28 @@ def level_view(level_type, level_number):
     isReview = "review" in page
     isTutorial = "tutorial" in page
     templateName = f"levels/level_{level_number}_{level_type}.html"
+    session["level_number"] = level_number
     return render_template(templateName, isReview=isReview, isTutorial=isTutorial)
 
 
 @app.route("/review-results", methods=["POST"])
 @login_required
 def review_results():
-    data = request.get_json()  # Get the JSON data sent from the client
-    correct_count = data.get("correctCount")
-    incorrect_count = data.get("incorrectCount")
-
-    # Handle the data as needed (e.g., save to the database, perform calculations, etc.)
-    # For example, saving to the database:
+    data = request.get_json()  # Get the JSON data sent from the JS
+    
+    # Assigns the data from JS to variables to use in py
     user_id = session["user_id"]
-    level_number = 2  # Example value, adjust as needed
-    level_type = "review"  # Example value, adjust as needed
-    # Calculate other necessary fields like time_taken and wpm if applicable
+    levelNumber = session["level_number"]
+    correctCount = data.get("correctCount", 0)
+    incorrectCount = data.get("incorrectCount", 0)
+    time = data.get("totalTime", 0)
+    wpm = data.get("wpm", 0)
+    score = data.get("score", 0)
 
-    # Example database insertion (make sure you have an appropriate table defined)
+    # Inserts data from JS into database
     cursor = get_db()
-    cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm) VALUES (?, ?, ?, ?, ?, ?)",
-                   (user_id, level_number, correct_count, incorrect_count, time_taken, wpm))
+    cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm, score) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (user_id, levelNumber, correctCount, incorrectCount, time, wpm, score))
     cursor.connection.commit()
 
     return jsonify({"message": "Results received successfully"})

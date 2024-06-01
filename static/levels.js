@@ -16,8 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentIndex = 0;
     let correctCount = 0;
     let incorrectCount = 0;
+    let startTime = null;
+    let endTime = null;
+
 
     document.addEventListener("keydown", (event) => {
+        // Records the time from when the user hits the first key
+        if (!startTime && isReviewLevel) {
+            startTime = new Date();
+        }
+
         const currentLetter = document.getElementById("letter-" + currentIndex);
         const expectedKey = paragraph[currentIndex] === " " ? " " : paragraph[currentIndex];
 
@@ -67,58 +75,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Checks if the user has completed the level
         if (currentIndex >= paragraph.length) {
-            redirectToResults(correctCount, incorrectCount);
-        }
-    });
-
-    function redirectToResults(correctCount, incorrectCount) {
-        // Creates object to store the data that will be sent to the server-side
-        const resultsData = {
-            correctCount: correctCount,
-            incorrectCount: incorrectCount
-        };
-
-        // Sends the resultsData object in JSON format to review-results endpoint
-        fetch("/review-results", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(resultsData)
-        })
-        // Processes the response from the server
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Failed to send results to the server");
-            }
-            return response.json();
-        })
-        // Shows the correct modal with the correct data from the server
-        .then(data => {
-            console.log(data);
-            if (isReviewLevel) {
-                showReviewModal(correctCount, incorrectCount);
-            } else if (isTutorialLevel) {
+            if (isTutorialLevel) {
                 showTutorialModal();
             }
-        })
-        // Handles any errors that occur during the fetch request or .then() methods
-        .catch(error => {
-            console.error("Error:", error);
-        });
+            else {
+                // Records the time of when user finishes the level
+                endTime = new Date();
+                // creates variables to store the total time and wpm
+                const totalTime = (endTime - startTime) / 1000; // time in seconds
+                const totalWords = (correctCount + incorrectCount) / 5; // Average word length of 5 characters
+                const wpm = (totalWords) / (totalTime / 60)
+                const score = Math.floor (correctCount + wpm)  // Score they have to beat to pass the level
+                showReviewModal(correctCount, incorrectCount, totalTime, wpm, score);
+            }
+        }
+    });
+    // Displays the review results modal and sends the results to the server where they are stored in the db
+    function showReviewModal(correctCount, incorrectCount, totalTime, wpm, score) {
+        const resultsModal = document.getElementById("reviewResultsModal");
+        document.getElementById("correctCount").textContent = `Correct: ${correctCount}`;
+        document.getElementById("incorrectCount").textContent = `Incorrect: ${incorrectCount}`;
+        document.getElementById("totalTime").textContent = `Time: ${totalTime.toFixed(2)} seconds`;
+        document.getElementById("wpm").textContent = `WPM: ${wpm.toFixed(2)}`;
+        document.getElementById("score").textContent = `Score: ${score}`;
+        resultsModal.showModal();
+        resultsModal.style.display = 'block';
+        sendResults(correctCount, incorrectCount, totalTime, wpm, score);
     }
 
-    function showReviewModal(correctCount, incorrectCount) {
-        const modal = document.getElementById("reviewResultsModal");
-        document.getElementById("correctCount").textContent = `Correct Letters: ${correctCount}`;
-        document.getElementById("incorrectCount").textContent = `Incorrect Letters: ${incorrectCount}`;
-        // Add other data like time taken and wpm as needed
-        modal.showModal();
+    function sendResults(correctCount, incorrectCount, totalTime, wpm, score) {
+        // Creates object to store the data that will be sent to the server-side
+        const resultsData = {
+            correctCount,
+            incorrectCount,
+            totalTime,
+            wpm,
+            score
+        };
+
+        try {
+            // Sends the resultsData object in JSON format to review-results endpoint
+            fetch("/review-results", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(resultsData)
+            })
+        } 
+        catch (error) {
+            console.error("Error:", error);
+        }
     }
 
     function showTutorialModal() {
-        const modal = document.getElementById("tutorialResultsModal");
-        modal.showModal();
+        const tutorialModal = document.getElementById("tutorialResultsModal");
+        tutorialModal.showModal();
+        tutorialModal.style.display = 'block';
     }
 
 });
