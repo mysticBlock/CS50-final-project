@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>Type Journey: {% block title %}{% endblock %}</title>
+    <title>Type Journey: Level {{ currentLevel }}</title>
   </head>
   <body>
     <header>
       <nav id="level-navbar">
-        <h1>{% block level %}{% endblock %}</h1>
+        <h1>Level {{ currentLevel }}</h1>
         <ul>
             <li><a href="/">exit</a></li>
         </ul>
@@ -26,22 +26,23 @@
                     <p id="totalTime"></p>
                     <p id="wpm"></p>
                     <p id="score"></p>
-                    <button id="nextLevel">Continue</button>
+                    <button class="nextLevel">Continue</button>
                 </div>
             </dialog>
         {% elif isTutorial %}
             <dialog id="tutorialResultsModal" class="modal">
                 <div class="modal-content">
                     <h1>Level Complete!</h1>
-                    <button id="nextLevel">Continue</button>
+                    <button class="nextLevel">Continue</button>
                 </div>
             </dialog>
         {% endif %}
     </main>
-    {# gives access to isReview and isTutorial variables in levels.js #}
+    {# Gives access to isReview, isTutorial and currentLevel variables in levels.js #}
     <script>
         const isReviewLevel = {{ isReview|tojson }};
         const isTutorialLevel = {{ isTutorial|tojson }};
+        const currentLevel =  {{ currentLevel|tojson }};
     </script>
     <script src = "{{ url_for('static', filename='levels.js') }}"></script>
   </body>

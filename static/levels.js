@@ -2,6 +2,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const wordContainer = document.getElementById("wordContainer");
     const paragraph = wordContainer.getAttribute("data-paragraph");
 
+    // Object for determining the next level type and number for navigation to the next level
+    const levelProgression = {
+        1: {"nextLevelType": "review", "nextLevelNumber": 2},
+        2: {"nextLevelType": "tutorial", "nextLevelNumber": 3}
+    }
+
     // Iterates through each character in the paragraph
     for (let i = 0; i < paragraph.length; i++) {
         const char = paragraph[i];
@@ -30,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const expectedKey = paragraph[currentIndex] === " " ? " " : paragraph[currentIndex];
 
         // Logic for tutorial levels
+        // isTutorialLevel and isReviewLevel are defined in python and imported in level-layout.html
         if (isTutorialLevel) {
             if (currentIndex < paragraph.length) {
                 if (event.key === expectedKey) {
@@ -81,13 +88,17 @@ document.addEventListener("DOMContentLoaded", () => {
             else {
                 // Records the time of when user finishes the level
                 endTime = new Date();
-                // creates variables to store the total time and wpm
-                const totalTime = (endTime - startTime) / 1000; // time in seconds
+                // Creates variables to store the total time, wpm and score
+                const totalTime = (endTime - startTime) / 1000; // Time in seconds
                 const totalWords = (correctCount + incorrectCount) / 5; // Average word length of 5 characters
                 const wpm = (totalWords) / (totalTime / 60)
                 const score = Math.floor (correctCount + wpm)  // Score they have to beat to pass the level
                 showReviewModal(correctCount, incorrectCount, totalTime, wpm, score);
             }
+            // Event listener for continue/next level button
+            document.querySelectorAll(".nextLevel").forEach(button => {
+                button.addEventListener("click", nextLevel);
+            });
         }
     });
     // Displays the review results modal and sends the results to the server where they are stored in the db
@@ -98,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("totalTime").textContent = `Time: ${totalTime.toFixed(2)} seconds`;
         document.getElementById("wpm").textContent = `WPM: ${wpm.toFixed(2)}`;
         document.getElementById("score").textContent = `Score: ${score}`;
-        resultsModal.showModal();
+        resultsModal.showModal(); //TODO
         resultsModal.style.display = 'block';
         sendResults(correctCount, incorrectCount, totalTime, wpm, score);
     }
@@ -124,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         } 
         catch (error) {
-            console.error("Error:", error);
+            console.error("Error: failed to send resultsData", error);
         }
     }
 
@@ -134,4 +145,20 @@ document.addEventListener("DOMContentLoaded", () => {
         tutorialModal.style.display = 'block';
     }
 
+    function nextLevel() {
+        const lastLevel = Object.keys(levelProgression).length + 1;
+
+        if (Number(currentLevel) === lastLevel) {
+            return window.location.href = "/levels/congratulations";
+        }
+        else if (levelProgression[currentLevel]) {
+            const nextLevelType = levelProgression[currentLevel].nextLevelType;
+            const nextLevelNumber = levelProgression[currentLevel].nextLevelNumber;
+
+            return window.location.href = `/levels/${nextLevelType}/${nextLevelNumber}`;
+        }
+        else {
+            console.error("Error: Invalid level or missing data in levelProgression");
+        }  
+    }
 });

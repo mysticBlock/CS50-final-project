@@ -163,8 +163,8 @@ def level_view(level_type, level_number):
     isReview = "review" in page
     isTutorial = "tutorial" in page
     templateName = f"levels/level_{level_number}_{level_type}.html"
-    session["level_number"] = level_number
-    return render_template(templateName, isReview=isReview, isTutorial=isTutorial)
+    currentLevel = session["level_number"] = level_number
+    return render_template(templateName, isReview=isReview, isTutorial=isTutorial, currentLevel=currentLevel)
 
 
 @app.route("/review-results", methods=["POST"])
@@ -188,3 +188,8 @@ def review_results():
     cursor.connection.commit()
 
     return jsonify({"message": "Results received successfully"})
+
+@app.route("/levels/congratulations")
+@login_required
+def congratulations():
+    return render_template("levels/congratulations.html")
