@@ -177,17 +177,35 @@ def review_results():
     levelNumber = session["level_number"]
     correctCount = data.get("correctCount", 0)
     incorrectCount = data.get("incorrectCount", 0)
-    time = data.get("totalTime", 0)
+    totalTime = data.get("totalTime", 0)
     wpm = data.get("wpm", 0)
     score = data.get("score", 0)
 
     # Inserts data from JS into database
     cursor = get_db()
-    cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm, score) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                   (user_id, levelNumber, correctCount, incorrectCount, time, wpm, score))
-    cursor.connection.commit()
+    cursor.execute("SELECT level FROM scores WHERE user_id = ?", (user_id,))
+    levelsCompleted = [row[0] for row in cursor.fetchall()]
 
-    return jsonify({"message": "Results received successfully"})
+    # Checks if the level is already completed by the user
+    if int(levelNumber) in levelsCompleted:
+        cursor.execute("SELECT score FROM scores WHERE user_id = ? AND level = ?", (user_id, levelNumber))
+        currentLevelExistingScore = cursor.fetchone()["score"]
+
+        if currentLevelExistingScore < score:
+            cursor.execute("UPDATE scores SET correct = ?, incorrect = ?, time = ?, wpm = ?, score = ? WHERE user_id = ? AND level = ?",
+                            (correctCount, incorrectCount, totalTime, wpm, score, user_id, levelNumber))
+            cursor.connection.commit()
+            return jsonify({"message": "Updated results inserted into db"})
+    
+        else:
+            return jsonify({"message": "Score is lower, no update made"})
+    
+    else:
+        cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm, score) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (user_id, levelNumber, correctCount, incorrectCount, totalTime, wpm, score))
+        
+        cursor.connection.commit()
+        return jsonify({"message": "Results inserted into db"})
 
 @app.route("/levels/congratulations")
 @login_required
