@@ -2,10 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const wordContainer = document.getElementById("wordContainer");
     const paragraph = wordContainer.getAttribute("data-paragraph");
 
-    // Object for determining the next level type and number for navigation to the next level
+    // Object with the details for every level
+    // Used for determining the next level type for navigation to the next level
+    // Also used for the passScore of each review level
     const levelProgression = {
-        1: {"nextLevelType": "review", "nextLevelNumber": 2, "passScore": 50},
-        2: {"nextLevelType": "tutorial", "nextLevelNumber": 3}
+        1: {"levelType": "tutorial"},
+        2: {"levelType": "review", "passScore": 50},
+        3: {"levelType": "tutorial"}
     }
 
     // Iterates through each character in the paragraph
@@ -108,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const weightWpm = 0.4;
                 const weightAccuracy = 0.6;
                 const score = Math.floor ((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
-                const passScore = levelProgression[currentLevel - 1].passScore // Score they have to beat to pass the level (from object)
+                const passScore = levelProgression[currentLevel].passScore // Score they have to beat to pass the level (from object)
 
                 // Calls showReviewModal function (shows the review modal)
                 showReviewModal(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
@@ -179,14 +182,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Navigates to the next level
     function nextLevel() {
-        const lastLevel = Object.keys(levelProgression).length + 1;
+        const lastLevel = Object.keys(levelProgression).length;
+        const currentLevelNum = Number(currentLevel);
 
-        if (Number(currentLevel) === lastLevel) {
+        if (currentLevelNum === lastLevel) {
             return window.location.href = "/levels/congratulations";
         }
-        else if (levelProgression[currentLevel]) {
-            const nextLevelType = levelProgression[currentLevel].nextLevelType;
-            const nextLevelNumber = levelProgression[currentLevel].nextLevelNumber;
+        else if (levelProgression[currentLevelNum + 1]) {
+            const nextLevelType = levelProgression[currentLevelNum + 1].levelType;
+            const nextLevelNumber = currentLevelNum +1;
 
             return window.location.href = `/levels/${nextLevelType}/${nextLevelNumber}`;
         }
