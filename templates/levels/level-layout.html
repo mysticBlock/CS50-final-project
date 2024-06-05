@@ -25,15 +25,17 @@
                     <p id="incorrectCount"></p>
                     <p id="totalTime"></p>
                     <p id="wpm"></p>
+                    <p id="accuracy"></p>
                     <p id="score"></p>
-                    <button class="nextLevel">Continue</button>
+                    <button id="reviewNextLevel" class="nextLevelButton">Continue</button>
+                    <button id="retryLevel" class="retryLevelButton">Retry</button>
                 </div>
             </dialog>
         {% elif isTutorial %}
             <dialog id="tutorialResultsModal" class="modal">
                 <div class="modal-content">
                     <h1>Level Complete!</h1>
-                    <button class="nextLevel">Continue</button>
+                    <button id="tutorialNextLevel" class="nextLevelButton">Continue</button>
                 </div>
             </dialog>
         {% endif %}

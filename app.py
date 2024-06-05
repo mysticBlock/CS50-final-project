@@ -179,6 +179,7 @@ def review_results():
     incorrectCount = data.get("incorrectCount", 0)
     totalTime = data.get("totalTime", 0)
     wpm = data.get("wpm", 0)
+    accuracy = data.get("accuracy", 0)
     score = data.get("score", 0)
 
     # Inserts data from JS into database
@@ -192,8 +193,8 @@ def review_results():
         currentLevelExistingScore = cursor.fetchone()["score"]
 
         if currentLevelExistingScore < score:
-            cursor.execute("UPDATE scores SET correct = ?, incorrect = ?, time = ?, wpm = ?, score = ? WHERE user_id = ? AND level = ?",
-                            (correctCount, incorrectCount, totalTime, wpm, score, user_id, levelNumber))
+            cursor.execute("UPDATE scores SET correct = ?, incorrect = ?, time = ?, wpm = ?, accuracy = ?, score = ? WHERE user_id = ? AND level = ?",
+                            (correctCount, incorrectCount, totalTime, wpm, accuracy, score, user_id, levelNumber))
             cursor.connection.commit()
             return jsonify({"message": "Updated results inserted into db"})
     
@@ -201,8 +202,8 @@ def review_results():
             return jsonify({"message": "Score is lower, no update made"})
     
     else:
-        cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm, score) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                   (user_id, levelNumber, correctCount, incorrectCount, totalTime, wpm, score))
+        cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm, accuracy, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                   (user_id, levelNumber, correctCount, incorrectCount, totalTime, wpm, accuracy, score))
         
         cursor.connection.commit()
         return jsonify({"message": "Results inserted into db"})

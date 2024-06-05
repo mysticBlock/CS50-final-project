@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Object for determining the next level type and number for navigation to the next level
     const levelProgression = {
-        1: {"nextLevelType": "review", "nextLevelNumber": 2},
+        1: {"nextLevelType": "review", "nextLevelNumber": 2, "passScore": 50},
         2: {"nextLevelType": "tutorial", "nextLevelNumber": 3}
     }
 
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentIndex = 0;
     let correctCount = 0;
     let incorrectCount = 0;
+    let backspaceCount = 0;
     let startTime = null;
     let endTime = null;
 
@@ -55,6 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isReviewLevel) {  
             if (event.key === "Backspace" && currentIndex > 0) {
                 currentIndex--;
+                backspaceCount++;
+
                 const prevLetter = document.getElementById("letter-" + currentIndex);
                 if (prevLetter.classList.contains("correct")) {
                     correctCount--;
@@ -82,8 +85,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Checks if the user has completed the level
         if (currentIndex >= paragraph.length) {
+
             if (isTutorialLevel) {
                 showTutorialModal();
+
+                const tutorialNextLevel = document.getElementById("tutorialNextLevel"); 
+                tutorialNextLevel.addEventListener("click", nextLevel);
             }
             else {
                 // Records the time of when user finishes the level
@@ -92,35 +99,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 const totalTime = (endTime - startTime) / 1000; // Time in seconds
                 const totalWords = (correctCount + incorrectCount) / 5; // Average word length of 5 characters
                 const wpm = (totalWords) / (totalTime / 60)
-                const score = Math.floor (correctCount + wpm)  // Score they have to beat to pass the level
-                showReviewModal(correctCount, incorrectCount, totalTime, wpm, score);
+
+                // Accuracy calculation
+                const totalAttempts = correctCount + incorrectCount + backspaceCount;
+                const accuracy = Math.floor((correctCount / totalAttempts) * 100);
+
+                // Score calculations
+                const weightWpm = 0.4;
+                const weightAccuracy = 0.6;
+                const score = Math.floor ((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
+                const passScore = levelProgression[currentLevel - 1].passScore // Score they have to beat to pass the level (from object)
+
+                // Calls showReviewModal function (shows the review modal)
+                showReviewModal(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
+
+                // Event listeners for next level & retry buttons
+                const reviewNextLevel = document.getElementById("reviewNextLevel");
+                    reviewNextLevel.addEventListener("click", nextLevel);
+    
+                const retryButton = document.getElementById("retryLevel");
+                retryButton.addEventListener("click", () => location.reload());
             }
-            // Event listener for continue/next level button
-            document.querySelectorAll(".nextLevel").forEach(button => {
-                button.addEventListener("click", nextLevel);
-            });
         }
     });
+
+    // Displays the tutorial modal
+    function showTutorialModal() {
+        const tutorialModal = document.getElementById("tutorialResultsModal");
+        const nextLevelButton = document.getElementById("tutorialNextLevel");
+
+        tutorialModal.style.display = "block";
+        nextLevelButton.style.display = "inline-block";
+    }
+
     // Displays the review results modal and sends the results to the server where they are stored in the db
-    function showReviewModal(correctCount, incorrectCount, totalTime, wpm, score) {
+    function showReviewModal(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore) {
         const resultsModal = document.getElementById("reviewResultsModal");
+
         document.getElementById("correctCount").textContent = `Correct: ${correctCount}`;
         document.getElementById("incorrectCount").textContent = `Incorrect: ${incorrectCount}`;
         document.getElementById("totalTime").textContent = `Time: ${totalTime.toFixed(2)} seconds`;
         document.getElementById("wpm").textContent = `WPM: ${wpm.toFixed(2)}`;
+        document.getElementById("accuracy").textContent = `Accuracy: ${accuracy}%`;
         document.getElementById("score").textContent = `Score: ${score}`;
-        resultsModal.showModal(); //TODO
-        resultsModal.style.display = 'block';
-        sendResults(correctCount, incorrectCount, totalTime, wpm, score);
+
+        resultsModal.style.display = "block";
+
+        toggleButtons(score, passScore);
+        sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score);
     }
 
-    function sendResults(correctCount, incorrectCount, totalTime, wpm, score) {
+
+    function sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score) {
         // Creates object to store the data that will be sent to the server-side
         const resultsData = {
             correctCount,
             incorrectCount,
             totalTime,
             wpm,
+            accuracy,
             score
         };
 
@@ -139,12 +176,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function showTutorialModal() {
-        const tutorialModal = document.getElementById("tutorialResultsModal");
-        tutorialModal.showModal();
-        tutorialModal.style.display = 'block';
-    }
 
+    // Navigates to the next level
     function nextLevel() {
         const lastLevel = Object.keys(levelProgression).length + 1;
 
@@ -160,5 +193,14 @@ document.addEventListener("DOMContentLoaded", () => {
         else {
             console.error("Error: Invalid level or missing data in levelProgression");
         }  
+    }
+
+
+    // Shows corresponding button if user passes or fails the level
+    function toggleButtons(score, passScore) {
+        const nextLevelButton = document.getElementById("reviewNextLevel");
+
+        score > passScore ? nextLevelButton.style.display = "inline-block" 
+        : nextLevelButton.style.display = "none";
     }
 });
