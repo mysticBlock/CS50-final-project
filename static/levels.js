@@ -206,5 +206,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
         score > passScore ? nextLevelButton.style.display = "inline-block" 
         : nextLevelButton.style.display = "none";
-    }
+    }  
 });
