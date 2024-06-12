@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const wordContainer = document.getElementById("wordContainer");
     const paragraph = wordContainer.getAttribute("data-paragraph");
-
+ 
     // Object with the details for every level
     // Used for determining the next level type for navigation to the next level
     // Also used for the passScore of each review level
@@ -149,11 +149,12 @@ document.addEventListener("DOMContentLoaded", () => {
         resultsModal.style.display = "block";
 
         toggleButtons(score, passScore);
-        sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score);
+        sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
+        updateHighestLevelCompleted()
     }
 
 
-    function sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score) {
+    function sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore) {
         // Creates object to store the data that will be sent to the server-side
         const resultsData = {
             correctCount,
@@ -161,7 +162,8 @@ document.addEventListener("DOMContentLoaded", () => {
             totalTime,
             wpm,
             accuracy,
-            score
+            score,
+            passScore
         };
 
         try {

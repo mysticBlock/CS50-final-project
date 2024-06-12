@@ -1,5 +1,7 @@
 import sqlite3
 
+import sys #TODO
+
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_session import Session
@@ -57,7 +59,12 @@ def index():
     cursor = get_db()
     cursor.execute("SELECT username FROM users WHERE id = ?", (id,))
     username = cursor.fetchone()
-    return render_template("index.html", username=username[0] if username else None)
+
+    # To render the unlocked or locked buttons
+    cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (id,))
+    highestLevelCompleted = cursor.fetchone()[0]
+    print(f"Highest level completed: {highestLevelCompleted}", file=sys.stderr)
+    return render_template("index.html", username=username[0] if username else None, highestLevelCompleted=highestLevelCompleted)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -158,13 +165,29 @@ def register():
 @app.route("/levels/<level_type>/<level_number>")
 @login_required
 def level_view(level_type, level_number):
+
+    user_id = session["user_id"]
+    levelNumber = int(level_number)
+
+    cursor = get_db()
+
+    cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (user_id,))
+    highestLevelCompleted = cursor.fetchone()[0]
+    print(f"Highest level completed: {highestLevelCompleted}", file=sys.stderr)
+
+
+    # Returns error if user tries to navigate to a page they haven't unlocked yet using the url
+    if levelNumber > highestLevelCompleted + 1:
+        flash("You haven't unlocked this level yet.")
+        return render_template("error.html")
+
     # Determines the type of level the user navigated to
     page = request.path
     isReview = "review" in page
     isTutorial = "tutorial" in page
     templateName = f"levels/level_{level_number}_{level_type}.html"
     currentLevel = session["level_number"] = level_number
-    return render_template(templateName, isReview=isReview, isTutorial=isTutorial, currentLevel=currentLevel)
+    return render_template(templateName, isReview=isReview, isTutorial=isTutorial, currentLevel=currentLevel, highestLevelCompleted=highestLevelCompleted)
 
 
 @app.route("/review-results", methods=["POST"])
@@ -185,10 +208,10 @@ def review_results():
     # Inserts data from JS into database
     cursor = get_db()
     cursor.execute("SELECT level FROM scores WHERE user_id = ?", (user_id,))
-    levelsCompleted = [row[0] for row in cursor.fetchall()]
+    reviewLevelsCompleted = [row[0] for row in cursor.fetchall()]
 
     # Checks if the level is already completed by the user
-    if int(levelNumber) in levelsCompleted:
+    if int(levelNumber) in reviewLevelsCompleted:
         cursor.execute("SELECT score FROM scores WHERE user_id = ? AND level = ?", (user_id, levelNumber))
         currentLevelExistingScore = cursor.fetchone()["score"]
 
@@ -207,6 +230,39 @@ def review_results():
         
         cursor.connection.commit()
         return jsonify({"message": "Results inserted into db"})
+
+
+# Saves the highest level completed into the db at highest_level_completed
+@app.route("/complete-level", methods=["POST"])
+@login_required
+def complete_level():
+    user_id = session["user_id"]
+    data = request.get_json()
+    levelNumber = session["level_number"]
+    score = data.get("score", 0)
+    passScore = data.get("passScore", 0)
+
+    if levelNumber is not None:
+        levelNumber = int(levelNumber)
+
+        cursor = get_db()
+        cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (user_id,))
+        currentHighestLevel = cursor.fetchone()[0]
+
+        # Checks if the level is a tutorial or review
+        if data.get("isTutorial"):
+            if levelNumber > currentHighestLevel:
+                cursor.execute("UPDATE users SET highest_level_completed = ? WHERE id = ?", (levelNumber, user_id))
+                cursor.connection.commit()
+            else:
+                return jsonify({"message": "Not the highest level the user has completed"})
+        else:
+            if levelNumber > currentHighestLevel and score >= passScore:
+                cursor.execute("UPDATE users SET highest_level_completed = ? WHERE id = ?", (levelNumber, user_id))
+                cursor.connection.commit()
+            else:
+                return jsonify({"message": "Not the highest level the user has completed or they didn't pass"})
+
 
 @app.route("/levels/congratulations")
 @login_required
