@@ -29,9 +29,6 @@
         {% block main %}{% endblock %}
     </main>
     <footer></footer>
-    <script>
-        const highestLevelCompleted = {{ highestLevelCompleted|tojson }};
-    </script>
-    <script src = "{{ url_for('static', filename='index.js') }}"></script> 
+    {% block script %}{% endblock %}
   </body>
 </html>

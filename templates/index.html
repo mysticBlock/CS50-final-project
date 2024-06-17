@@ -13,3 +13,9 @@
     <button onclick="location.href='/levels/tutorial/3'" class="level-button" data-level-number="3">Level 3</button>
 {% endblock %}
 
+{% block script %}
+    <script>
+        const highestLevelCompleted = {{ highestLevelCompleted|tojson }};
+    </script>
+    <script src = "{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}

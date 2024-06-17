@@ -1,7 +1,5 @@
 import sqlite3
 
-import sys #TODO
-
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_session import Session
@@ -63,7 +61,6 @@ def index():
     # To render the unlocked or locked buttons
     cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (id,))
     highestLevelCompleted = cursor.fetchone()[0]
-    print(f"Highest level completed: {highestLevelCompleted}", file=sys.stderr)
     return render_template("index.html", username=username[0] if username else None, highestLevelCompleted=highestLevelCompleted)
 
 
@@ -173,8 +170,6 @@ def level_view(level_type, level_number):
 
     cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (user_id,))
     highestLevelCompleted = cursor.fetchone()[0]
-    print(f"Highest level completed: {highestLevelCompleted}", file=sys.stderr)
-
 
     # Returns error if user tries to navigate to a page they haven't unlocked yet using the url
     if levelNumber > highestLevelCompleted + 1:
@@ -254,12 +249,14 @@ def complete_level():
             if levelNumber > currentHighestLevel:
                 cursor.execute("UPDATE users SET highest_level_completed = ? WHERE id = ?", (levelNumber, user_id))
                 cursor.connection.commit()
+                return jsonify({"message": "Success"})
             else:
                 return jsonify({"message": "Not the highest level the user has completed"})
         else:
             if levelNumber > currentHighestLevel and score >= passScore:
                 cursor.execute("UPDATE users SET highest_level_completed = ? WHERE id = ?", (levelNumber, user_id))
                 cursor.connection.commit()
+                return jsonify({"message": "Success"})
             else:
                 return jsonify({"message": "Not the highest level the user has completed or they didn't pass"})
 

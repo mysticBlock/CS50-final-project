@@ -86,8 +86,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } 
 
-        // Checks if the user has completed the level
+        // Checks if the user has finished the level
         if (currentIndex >= paragraph.length) {
+
+            // Initializes the score and passScore so they can be passed into the updateHighestLevelCompleted parameters at the end 
+            let score = 0;
+            let passScore = 0;
 
             if (isTutorialLevel) {
                 showTutorialModal();
@@ -110,8 +114,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Score calculations
                 const weightWpm = 0.4;
                 const weightAccuracy = 0.6;
-                const score = Math.floor ((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
-                const passScore = levelProgression[currentLevel].passScore // Score they have to beat to pass the level (from object)
+                score = Math.floor ((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
+                passScore = levelProgression[currentLevel].passScore // Score they have to beat to pass the level (from object)
 
                 // Calls showReviewModal function (shows the review modal)
                 showReviewModal(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
@@ -123,6 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const retryButton = document.getElementById("retryLevel");
                 retryButton.addEventListener("click", () => location.reload());
             }
+            
+            // Updates the highest level completed in db 
+            updateHighestLevelCompleted(score, passScore, isTutorialLevel);
         }
     });
 
@@ -150,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         toggleButtons(score, passScore);
         sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
-        updateHighestLevelCompleted()
     }
 
 
@@ -179,6 +185,24 @@ document.addEventListener("DOMContentLoaded", () => {
         catch (error) {
             console.error("Error: failed to send resultsData", error);
         }
+    }
+
+    function updateHighestLevelCompleted(score, passScore, isTutorialLevel) {
+        // Calls complete-level route (updates the highest_level_completed in db)
+            fetch("/complete-level", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    score: score,
+                    passScore: passScore,
+                    isTutorial: isTutorialLevel
+                })
+            })
+            .catch(error => {
+                console.error("Error: failed to call complete-level route", error);
+            });
     }
 
 
