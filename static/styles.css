@@ -45,15 +45,25 @@
 }
 
 /* Level functionality styles */
+#wordContainer {
+    margin-top: 15%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .letter {
     display: inline-block;
     font-size: 2em;
+    padding: 5px;
 }
 .correct {
     color: green;
+    background-color: lightgreen;
 }
 .incorrect {
     color: red;
+    background-color: lightcoral;
 }
 
 /* Results modal */

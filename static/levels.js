@@ -7,8 +7,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // Also used for the passScore of each review level
     const levelProgression = {
         1: {"levelType": "tutorial"},
-        2: {"levelType": "review", "passScore": 50},
-        3: {"levelType": "tutorial"}
+        2: {"levelType": "tutorial"},
+        3: {"levelType": "review", "passScore": 50},
+        4: {"levelType": "tutorial"},
+        5: {"levelType": "review", "passScore": 50},
+        6: {"levelType": "review", "passScore": 50},
+        7: {"levelType": "tutorial"},
+        8: {"levelType": "review", "passScore": 50},
+        9: {"levelType": "review", "passScore": 50},
+        10: {"levelType": "tutorial"},
+        11: {"levelType": "review", "passScore": 50},
+        12: {"levelType": "review", "passScore": 50},
+        13: {"levelType": "tutorial"},
+        14: {"levelType": "review", "passScore": 50},
+        15: {"levelType": "review", "passScore": 50},
+        16: {"levelType": "review", "passScore": 50},
+        17: {"levelType": "review", "passScore": 50}
     }
 
     // Iterates through each character in the paragraph
