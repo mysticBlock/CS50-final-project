@@ -157,6 +157,12 @@ def register():
 
     return render_template("register.html")
 
+# Route for profile page
+@app.route("/profile")
+@login_required
+def profile():
+    return render_template("profile.html")
+
 
 # Dynamic route for all levels
 @app.route("/levels/<level_type>/<level_number>")
@@ -261,7 +267,7 @@ def complete_level():
                 return jsonify({"message": "Not the highest level the user has completed or they didn't pass"})
 
 
-@app.route("/levels/congratulations")
+@app.route("/congratulations")
 @login_required
 def congratulations():
     return render_template("levels/congratulations.html")

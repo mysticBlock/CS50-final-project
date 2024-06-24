@@ -12,9 +12,15 @@
         <h1>Type Journey</h1>
         {% if session["user_id"] %}
             <ul>
-                <li><a href="">Lessons</a></li>
-                <li><a href="">Speed test</a></li>
-                <li><a href="/logout">logout</a></li>
+              <li><a href="/">Lessons</a></li>
+              <li><a href="">Speed test</a></li>
+              <li id="dropdown" data-dropdown>
+                <img src="static/images/profile-icon.png" alt="Profile" id="profile-icon" data-dropdown-img>
+                <ul id="dropdown-content">
+                  <li><a href="/profile">Profile</a></li>
+                  <li><a href="/logout">Logout</a></li>
+                </ul>
+              </li>
             </ul>
         {% else %}
             <ul>

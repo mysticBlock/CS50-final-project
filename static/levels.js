@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentLevelNum = Number(currentLevel);
 
         if (currentLevelNum === lastLevel) {
-            return window.location.href = "/levels/congratulations";
+            return window.location.href = "/congratulations";
         }
         else if (levelProgression[currentLevelNum + 1]) {
             const nextLevelType = levelProgression[currentLevelNum + 1].levelType;
