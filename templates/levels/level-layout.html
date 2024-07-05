@@ -40,12 +40,6 @@
             </dialog>
         {% endif %}
     </main>
-    {# Gives access to isReview, isTutorial and currentLevel variables in levels.js #}
-    <script>
-        const isReviewLevel = {{ isReview|tojson }};
-        const isTutorialLevel = {{ isTutorial|tojson }};
-        const currentLevel =  {{ currentLevel|tojson }};
-    </script>
-    <script src = "{{ url_for('static', filename='levels.js') }}"></script>
+    <script type="module" src = "{{ url_for('static', filename='levels.js') }}"></script>
   </body>
 </html>

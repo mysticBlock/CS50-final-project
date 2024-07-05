@@ -11,21 +11,25 @@
       <nav id="navbar">
         <h1>Type Journey</h1>
         {% if session["user_id"] %}
+          <div id="link-container">
             <ul>
-              <li><a href="/">Lessons</a></li>
-              <li><a href="">Speed test</a></li>
+              <li class="nav-link"><a href="/">Lessons</a></li>
+              <li class="nav-link"><a href="/speed-test">Speed test</a></li> 
+            </ul>
+            <ul>
               <li id="dropdown" data-dropdown>
-                <img src="static/images/profile-icon.png" alt="Profile" id="profile-icon" data-dropdown-img>
+                <img src="static/images/profile-icon.png" alt="Profile" id="profile-icon" class="nav-link" data-dropdown-img>
                 <ul id="dropdown-content">
-                  <li><a href="/profile">Profile</a></li>
-                  <li><a href="/logout">Logout</a></li>
+                  <li class="dropdown-link"><a href="/profile">Profile</a></li>
+                  <li class="dropdown-link"><a href="/logout">Logout</a></li>
                 </ul>
               </li>
             </ul>
+          </div>
         {% else %}
             <ul>
-                <li><a href="/register">Register</a></li>
-                <li><a href="/login">Log in</a></li>
+                <li class="nav-link"><a href="/register">Register</a></li>
+                <li class="nav-link"><a href="/login">Log in</a></li>
             </ul>
 
         {% endif %}

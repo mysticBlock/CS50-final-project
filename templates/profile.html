@@ -1,2 +1,15 @@
-<!DOCTYPE html>
-<p>profle</p>
+{% extends "layout.html" %}
+
+{% block title %}
+    Home Page
+{% endblock %}
+
+{% block main %}
+    {{ highestLevelCompleted }}
+    {{ averageWpm }}
+    {{ averageAccuracy }}
+{% endblock %}
+
+{% block script %}
+    <script src = "{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

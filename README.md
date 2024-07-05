@@ -9,5 +9,14 @@ I used a modal for the results screen rather than a new html file so that the pa
 
 Next i needed to lock the levels and unlock them once the user has completed the previous one. First I had to disable the buttons that navigates to the levels that they havent unlocked yet whilst also making sure that the user couldn't just input the level type and number into the url which would then take them to that level and if they completed it, it would unlock all previous levels. this ment i had to add a highest_level_completed column in the users table so i could track the highest level the user has completed and if they tried to navigate to a level that they have not unlocked (highest level completed + 1) then they would be directed to error.html with a message. I used the fetch method again to send data to a route in app.py which has a series of conditionals which updates the highest_level_completed depending on wether they met the conditions to unlock the next level.
 
+I then made a dropdown so users can see their profile and also logout. to do this i used a combination of youtube and chatgpt to help me make it look smooth with transitions.
+
+I then made the profile page. 
+
+
+I then made the speed test page. now this made me think a lot because there is a lot of cross over logic between the review levels and this speed test page. So i decided to refactor my levels.js code and put the logic into functions. One to make it more readable and modular and two because i can export the function from levels.js and use it in speedtest.js without having to copy and paste it.
+
+
+#TODO make sure user cant just press random keys quickly to pass levels - make it so they have to get higher than the pass score and also higher than 60% accuracy.
 
 Chatgpt usage: i used chatgpt to generate the letter sequences of each level.

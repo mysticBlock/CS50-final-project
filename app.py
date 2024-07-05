@@ -1,9 +1,28 @@
 import sqlite3
+import nltk
+import markovify
+
 
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session
 from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_session import Session
 from functools import wraps
+
+# Downloads the Gutenberg corpus (for speed test)
+nltk.download('gutenberg')
+
+# Loads texts from the Gutenberg corpus
+texts = [
+    nltk.corpus.gutenberg.raw('austen-emma.txt'),
+    nltk.corpus.gutenberg.raw('melville-moby_dick.txt'),
+    nltk.corpus.gutenberg.raw('bible-kjv.txt')
+]
+
+# Builds individual Markov models
+models = [markovify.Text(text) for text in texts]
+
+# Combines the models (used to generate sentences for speed test)
+combinedModel = markovify.combine(models)
 
 app = Flask(__name__)
 
@@ -161,7 +180,46 @@ def register():
 @app.route("/profile")
 @login_required
 def profile():
-    return render_template("profile.html")
+    cursor = get_db()
+    user_id = session["user_id"]
+
+    #Gets the highest level completed
+    cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (user_id,))
+    highestLevelCompleted = cursor.fetchone()[0]
+
+    # Gets the average wpm
+    cursor.execute("SELECT wpm FROM scores WHERE user_id = ?", (user_id,))
+    allWpm = cursor.fetchall()
+    wpmValues = [row['wpm'] for row in allWpm]
+    if wpmValues:
+        averageWpm = sum(wpmValues) / len(wpmValues)
+    else:
+        averageWpm = 0
+
+    #Gets the average accuracy
+    cursor.execute("SELECT accuracy FROM scores WHERE user_id = ?", (user_id,))
+    allAccuracy = cursor.fetchall()
+    accuracyValues = [row['accuracy'] for row in allAccuracy]
+    if accuracyValues:
+        averageAccuracy = sum(accuracyValues) / len(accuracyValues)
+    else:
+        averageAccuracy = 0
+
+    return render_template("profile.html", highestLevelCompleted=highestLevelCompleted, averageWpm=averageWpm, averageAccuracy=averageAccuracy) 
+
+
+# Generates random sentences
+def generate_sentence(model, max_length=100):
+    sentence = model.make_sentence()
+    if sentence and len(sentence) > max_length:
+        sentence = sentence[:max_length].rsplit(' ', 1)[0]  # Ensure not to cut words in the middle
+    return sentence
+
+@app.route("/speed-test")
+@login_required
+def speed_test():
+    sentences = generate_sentence(combinedModel)
+    return render_template("speed_test.html", sentences=sentences)
 
 
 # Dynamic route for all levels
@@ -182,13 +240,16 @@ def level_view(level_type, level_number):
         flash("You haven't unlocked this level yet.")
         return render_template("error.html")
 
-    # Determines the type of level the user navigated to
+    # Used for jinja conditional to render either the tutorial or review modal
     page = request.path
     isReview = "review" in page
     isTutorial = "tutorial" in page
+
+    # Constructs the url
     templateName = f"levels/level_{level_number}_{level_type}.html"
-    currentLevel = session["level_number"] = level_number
-    return render_template(templateName, isReview=isReview, isTutorial=isTutorial, currentLevel=currentLevel, highestLevelCompleted=highestLevelCompleted)
+    
+
+    return render_template(templateName, isReview=isReview, isTutorial=isTutorial)
 
 
 @app.route("/review-results", methods=["POST"])

@@ -25,7 +25,12 @@
     list-style-type: none;  
 }
 
-#navbar li {
+#link-container {
+    display: flex;
+    align-items: center;
+}
+
+.nav-link {
     margin-left: 2em;
 }
 
@@ -57,12 +62,15 @@
 }
 
 #dropdown-content {
+    display: flex;
+    flex-direction: column;
     position: absolute;
     right: 0;
     top: calc(100% + .5em);
     padding: .75em;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
     opacity: 0;
+    background-color: white;
     pointer-events: none;
     transform: translateY(-10px);
     transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
@@ -72,6 +80,10 @@
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+}
+
+.dropdown-link {
+    padding: .25em .5em;
 }
 
 /* Level functionality styles */
