@@ -147,25 +147,14 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
         tutorialNextLevel.addEventListener("click", nextLevel);
     }
     else if (isReviewLevel) {
-        // Records the time of when user finishes the level
-        endTime = new Date();
-        // Creates variables to store the total time, wpm and score
-        const totalTime = (endTime - startTime) / 1000; // Time in seconds
-        const totalWords = (correctCount + incorrectCount) / 5; // Average word length of 5 characters
-        const wpm = (totalWords) / (totalTime / 60)
+        const results = calculateResults(currentLevel);
 
-        // Accuracy calculation
-        const totalAttempts = correctCount + incorrectCount + backspaceCount;
-        const accuracy = Math.floor((correctCount / totalAttempts) * 100);
-
-        // Score calculations
-        const weightWpm = 0.4;
-        const weightAccuracy = 0.6;
-        score = Math.floor ((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
-        passScore = levelProgression[currentLevel].passScore // Score they have to beat to pass the level (from object)
+        // Updates score and passScore values to pe passed into updateHighestLevelCompleted
+        score = results.score;
+        passScore = results.passScore;
 
         // Calls showReviewModal function (shows the review modal)
-        showReviewModal(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
+        showReviewModal(results);
 
         // Event listeners for next level & retry buttons
         const reviewNextLevel = document.getElementById("reviewNextLevel");
@@ -192,27 +181,26 @@ function showTutorialModal() {
     nextLevelButton.style.display = "inline-block";
 }
 
-// Displays the review results modal and sends the results to the server where they are stored in the db
-function showReviewModal(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore) {
-    const resultsModal = document.getElementById("reviewResultsModal");
+function calculateResults(currentLevel) {
+    // Records the time of when user finishes the level
+    endTime = new Date();
+    // Creates variables to store the total time, wpm and score
+    const totalTime = (endTime - startTime) / 1000; // Time in seconds
+    const totalWords = (correctCount + incorrectCount) / 5; // Average word length of 5 characters
+    const wpm = (totalWords) / (totalTime / 60)
 
-    document.getElementById("correctCount").textContent = `Correct: ${correctCount}`;
-    document.getElementById("incorrectCount").textContent = `Incorrect: ${incorrectCount}`;
-    document.getElementById("totalTime").textContent = `Time: ${totalTime.toFixed(2)} seconds`;
-    document.getElementById("wpm").textContent = `WPM: ${wpm.toFixed(2)}`;
-    document.getElementById("accuracy").textContent = `Accuracy: ${accuracy}%`;
-    document.getElementById("score").textContent = `Score: ${score}`;
+    // Accuracy calculation
+    const totalAttempts = correctCount + incorrectCount + backspaceCount;
+    const accuracy = Math.floor((correctCount / totalAttempts) * 100);
 
-    resultsModal.style.display = "block";
+    // Score calculations
+    const weightWpm = 0.4;
+    const weightAccuracy = 0.6;
+    const score = Math.floor((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
+    const passScore = levelProgression[currentLevel].passScore // Score they have to beat to pass the level (from object)
 
-    toggleButtons(score, passScore);
-    sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore);
-}
-
-
-function sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, score, passScore) {
-    // Creates object to store the data that will be sent to the server-side
-    const resultsData = {
+    // Creates object to store all the data that will be displayed on screen & sent to the server-side
+    const results = {
         correctCount,
         incorrectCount,
         totalTime,
@@ -220,20 +208,42 @@ function sendResults(correctCount, incorrectCount, totalTime, wpm, accuracy, sco
         accuracy,
         score,
         passScore
-    };
+    }
+    return results
+        
+}
 
+// Displays the review results modal and sends the results to the server where they are stored in the db
+function showReviewModal(results) {
+    const resultsModal = document.getElementById("reviewResultsModal");
+
+    document.getElementById("correctCount").textContent = `Correct: ${results.correctCount}`;
+    document.getElementById("incorrectCount").textContent = `Incorrect: ${results.incorrectCount}`;
+    document.getElementById("totalTime").textContent = `Time: ${results.totalTime.toFixed(2)} seconds`;
+    document.getElementById("wpm").textContent = `WPM: ${results.wpm.toFixed(2)}`;
+    document.getElementById("accuracy").textContent = `Accuracy: ${results.accuracy}%`;
+    document.getElementById("score").textContent = `Score: ${results.score}`;
+
+    resultsModal.style.display = "block";
+
+    toggleButtons(results.score, results.passScore);
+    sendResults(results);
+}
+
+
+function sendResults(results) {
     try {
-        // Sends the resultsData object in JSON format to review-results endpoint
+        // Sends the results object in JSON format to review-results endpoint
         fetch("/review-results", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(resultsData)
+            body: JSON.stringify(results)
         })
     } 
     catch (error) {
-        console.error("Error: failed to send resultsData", error);
+        console.error("Error: failed to send results", error);
     }
 }
 
@@ -259,14 +269,13 @@ function updateHighestLevelCompleted(score, passScore, isTutorialLevel) {
 // Navigates to the next level
 function nextLevel() {
     const lastLevel = Object.keys(levelProgression).length;
-    const currentLevelNum = Number(currentLevel);
 
-    if (currentLevelNum === lastLevel) {
+    if (currentLevel === lastLevel) {
         return window.location.href = "/congratulations";
     }
-    else if (levelProgression[currentLevelNum + 1]) {
-        const nextLevelType = levelProgression[currentLevelNum + 1].levelType;
-        const nextLevelNumber = currentLevelNum +1;
+    else if (levelProgression[currentLevel + 1]) {
+        const nextLevelType = levelProgression[currentLevel + 1].levelType;
+        const nextLevelNumber = currentLevel +1;
 
         return window.location.href = `/levels/${nextLevelType}/${nextLevelNumber}`;
     }

@@ -228,6 +228,7 @@ def speed_test():
 def level_view(level_type, level_number):
 
     user_id = session["user_id"]
+    session["level_number"] = level_number # Saves level_number to session
     levelNumber = int(level_number)
 
     cursor = get_db()
