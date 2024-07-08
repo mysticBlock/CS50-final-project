@@ -9,7 +9,7 @@
   <body>
     <header>
       <nav id="level-navbar">
-        <h1>Speed test</h1>
+        <h1>Speed Test</h1>
         <ul>
             <li><a href="/">exit</a></li>
         </ul>
@@ -19,20 +19,17 @@
         <div id="wordContainer" data-paragraph="{{ sentences }}"></div>
         <dialog id="speedTestModal" class="modal">
             <div class="modal-content">
-                <h1>Level Complete!</h1>
+                <h1>Speed Test Completed!</h1>
                 <p id="correctCount"></p>   
                 <p id="incorrectCount"></p>
                 <p id="totalTime"></p>
                 <p id="wpm"></p>
                 <p id="accuracy"></p>
-                <p id="score"></p>
                 <button id="retryLevel" class="retryLevelButton">Retry</button>
                 <button id="nextTest" class="nextTestButton">Next Test</button>
             </div>
         </dialog>
     </main>
-    
-    {# <script type="module" src = "{{ url_for('static', filename='levels.js') }}"></script> #}
-    {# <script type="module" src = "{{ url_for('static', filename='speedtest.js') }}"></script> #}
+    <script type="module" src = "{{ url_for('static', filename='speedTest.js') }}"></script>
   </body>
 </html>

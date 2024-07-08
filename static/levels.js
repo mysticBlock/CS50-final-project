@@ -1,3 +1,5 @@
+import { counters, setupValues, initializeLevel } from "./helpers.js";
+
 // Object with the details for every level
     // Used for determining the next level type for navigation to the next level
     // Also used for the passScore of each review level
@@ -21,119 +23,21 @@ const levelProgression = {
     17: {"levelType": "review", "passScore": 50}
 }
 
-// Keeps track of the current letter and how many they got correct and incorrect
-let currentIndex = 0;
-let correctCount = 0;
-let incorrectCount = 0;
-let backspaceCount = 0;
-let startTime = null;
-let endTime = null;
-
-const wordContainer = document.getElementById("wordContainer");
-const paragraph = wordContainer.getAttribute("data-paragraph");
-
-const page = window.location.pathname;
-const isReviewLevel = page.includes("review");
-const isTutorialLevel = page.includes("tutorial");
-const segments = page.split('/');
-const currentLevel = parseInt(segments[segments.length - 1], 10);
+//  Gets setup values
+const { paragraph, isReviewLevel, isTutorialLevel, currentLevel } = setupValues();
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Renders all characters on screen in span tags
-    renderChars();
+    // This renders the characters on the page and applies correct functionality depending on the type of level
+    // function is defined in helpers.js
+    initializeLevel(paragraph, isTutorialLevel, counters);
 
-    // Logic for tutorial levels
-    if (isTutorialLevel) {
-        document.addEventListener("keydown", tutorialLogic);
-    }
-
-    // Logic for review levels
-    if (isReviewLevel) {
-        document.addEventListener("keydown", reviewLogic);
-    }
+    // Checks if the user has finished the level
+    document.addEventListener("keydown", () => {
+        if (counters.currentIndex >= paragraph.length) {
+            levelCompleted(isTutorialLevel, isReviewLevel, currentLevel)
+        }
+    }) 
 });
-
-function renderChars() {
-    for (let i = 0; i < paragraph.length; i++) {
-        const char = paragraph[i];
-        const span = document.createElement("span");
-        span.className = "letter";
-        span.textContent = char === " " ? "_" : char;  // Uses a visible representation for space
-        span.id = "letter-" + i;
-        wordContainer.appendChild(span);
-    }
-}
-
-function tutorialLogic(event) {
-    // Returns if caps lock or shift is pressed then listens for the next key
-    if (event.key === "Shift" || event.key === "CapsLock") return;
-
-    // Variable to change the color of the letter
-    const currentLetter = document.getElementById("letter-" + currentIndex);
-    // The key the user needs to press to get it correct
-    const correctKey = paragraph[currentIndex] === " " ? " " : paragraph[currentIndex];
-
-    if (currentIndex < paragraph.length) {
-        if (event.key === correctKey) {
-            currentLetter.classList.remove("incorrect");
-            currentLetter.classList.add("correct");
-            currentIndex++;
-        } else {
-            currentLetter.classList.remove("correct");
-            currentLetter.classList.add("incorrect");
-        }
-    }
-    // Checks if the user has finished the level
-    if (currentIndex >= paragraph.length) {
-        levelCompleted(isTutorialLevel, isReviewLevel, currentLevel);
-    }
-}
-
-function reviewLogic(event) {
-    // Returns if caps lock or shift is pressed then listens for the next key
-    if (event.key === "Shift" || event.key === "CapsLock") return;
-
-    // Records the time from when the user hits the first key
-    if (!startTime) {
-        startTime = new Date();
-    }
-    // Variable to change the color of the letter
-    const currentLetter = document.getElementById("letter-" + currentIndex);
-    // The key the user needs to press to get it correct
-    const correctKey =  paragraph[currentIndex] === " " ? " " : paragraph[currentIndex];
-
-    if (event.key === "Backspace" && currentIndex > 0) {
-        currentIndex--;
-        backspaceCount++;
-
-        const prevLetter = document.getElementById("letter-" + currentIndex);
-        if (prevLetter.classList.contains("correct")) {
-            correctCount--;
-        }
-        else if (prevLetter.classList.contains("incorrect")) {
-            incorrectCount--;
-        }
-        prevLetter.classList.remove("correct", "incorrect");
-    }
-    else if (currentIndex < paragraph.length) {
-        if (event.key === correctKey) {
-            currentLetter.classList.remove("incorrect");
-            currentLetter.classList.add("correct");
-            correctCount++;
-            currentIndex++;
-        }
-        else {
-            currentLetter.classList.remove("correct");
-            currentLetter.classList.add("incorrect");
-            incorrectCount++;
-            currentIndex++;
-        }
-    }
-    // Checks if the user has finished the level
-    if (currentIndex >= paragraph.length) {
-        levelCompleted(isTutorialLevel, isReviewLevel, currentLevel)
-    }
-}
 
 function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
     // Initializes the score and passScore so they can be passed into the updateHighestLevelCompleted parameters at the end 
@@ -144,10 +48,10 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
         showTutorialModal();
 
         const tutorialNextLevel = document.getElementById("tutorialNextLevel"); 
-        tutorialNextLevel.addEventListener("click", nextLevel);
+        tutorialNextLevel.addEventListener("click", () => nextLevel(currentLevel, levelProgression));
     }
     else if (isReviewLevel) {
-        const results = calculateResults(currentLevel);
+        const results = calculateResults(currentLevel, counters, levelProgression);
 
         // Updates score and passScore values to pe passed into updateHighestLevelCompleted
         score = results.score;
@@ -158,7 +62,7 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
 
         // Event listeners for next level & retry buttons
         const reviewNextLevel = document.getElementById("reviewNextLevel");
-            reviewNextLevel.addEventListener("click", nextLevel);
+            reviewNextLevel.addEventListener("click", () => nextLevel(currentLevel, levelProgression));
 
         const retryButton = document.getElementById("retryLevel");
         retryButton.addEventListener("click", () => location.reload());
@@ -181,16 +85,20 @@ function showTutorialModal() {
     nextLevelButton.style.display = "inline-block";
 }
 
-function calculateResults(currentLevel) {
+function calculateResults(currentLevel, counters, levelProgression) {
     // Records the time of when user finishes the level
-    endTime = new Date();
+    counters.endTime = new Date();
+
+    // Defines correct and incorrect count to be used in results object
+    const correctCount = counters.correctCount;
+    const incorrectCount = counters.incorrectCount;
     // Creates variables to store the total time, wpm and score
-    const totalTime = (endTime - startTime) / 1000; // Time in seconds
+    const totalTime = (counters.endTime - counters.startTime) / 1000; // Time in seconds
     const totalWords = (correctCount + incorrectCount) / 5; // Average word length of 5 characters
     const wpm = (totalWords) / (totalTime / 60)
 
     // Accuracy calculation
-    const totalAttempts = correctCount + incorrectCount + backspaceCount;
+    const totalAttempts = correctCount + incorrectCount + counters.backspaceCount;
     const accuracy = Math.floor((correctCount / totalAttempts) * 100);
 
     // Score calculations
@@ -267,7 +175,7 @@ function updateHighestLevelCompleted(score, passScore, isTutorialLevel) {
 
 
 // Navigates to the next level
-function nextLevel() {
+function nextLevel(currentLevel, levelProgression) {
     const lastLevel = Object.keys(levelProgression).length;
 
     if (currentLevel === lastLevel) {

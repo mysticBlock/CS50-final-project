@@ -14,7 +14,7 @@ I then made a dropdown so users can see their profile and also logout. to do thi
 I then made the profile page. 
 
 
-I then made the speed test page. now this made me think a lot because there is a lot of cross over logic between the review levels and this speed test page. So i decided to refactor my levels.js code and put the logic into functions. One to make it more readable and modular and two because i can export the function from levels.js and use it in speedtest.js without having to copy and paste it.
+I then made the speed test page. now this made me think a lot because there is a lot of cross over logic between the review levels and this speed test page. So i decided to refactor my levels.js code and create a helpers.js with the functions and variables that would be used in both levels.js and speedTest.js 
 
 
 #TODO make sure user cant just press random keys quickly to pass levels - make it so they have to get higher than the pass score and also higher than 60% accuracy.
