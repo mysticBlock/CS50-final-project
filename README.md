@@ -14,7 +14,12 @@ I then made a dropdown so users can see their profile and also logout. to do thi
 I then made the profile page. 
 
 
-I then made the speed test page. now this made me think a lot because there is a lot of cross over logic between the review levels and this speed test page. So i decided to refactor my levels.js code and create a helpers.js with the functions and variables that would be used in both levels.js and speedTest.js 
+I then made the speed test page. now this made me think a lot because there is a lot of cross over logic between the review levels and this speed test page. So i decided to refactor my levels.js code and create a helpers.js with the functions and variables that would be used in both levels.js and speedTest.js
+
+Then i used nltk and the Gutenberg corpus to generate random text for the user to type and test their speed and accuracy.
+I made two buttons on completion where the user can navigate to another speed test (generating a new text) or retrying the text they just completed. I did this by storing the text in storage therefore if the page gets reloaded by the retry button or just in general the same text will remain on the screen. But if the user presses the next test button it navigates to the next-speed-test route which pops (removes) the text from session redirects to the speed-test route and generates a new text which is then loaded onto the page. I also made the index route pop the text from session so if they navigate to the home page then back to the speed test page they'll also get a new text.
+
+I then decided that for the profile page i wanted to have the users stats e.g highest wpm their average accuracy etc shown on their profile page. I originally was storing the results of the review levels for this but i think its better to show their speed test stats rather then their review score stats. So i removed the code that was saving the review data and deleted the scores table in the db as it isn't necessary to have all that extra data.
 
 
 #TODO make sure user cant just press random keys quickly to pass levels - make it so they have to get higher than the pass score and also higher than 60% accuracy.

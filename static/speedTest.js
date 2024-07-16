@@ -1,7 +1,7 @@
-import { counters, setupValues, initializeLevel } from "./helpers.js";
+import { counters, setupValues, initializeLevel} from "./helpers.js";
 
 //  Gets setup values
-const { paragraph, isReviewLevel, isTutorialLevel, currentLevel } = setupValues();
+const { paragraph, isTutorialLevel } = setupValues();
 
 document.addEventListener("DOMContentLoaded", () => {
     // This renders the characters on the page and applies correct functionality depending on the type of level
@@ -16,7 +16,25 @@ document.addEventListener("DOMContentLoaded", () => {
     }) 
 });
 
+
 function speedTestCompleted(counters) { 
+    const results = calculateResults(counters)
+
+    // Calls showReviewModal function (shows the review modal)
+    showSpeedTestModal(results);
+
+    // Event listeners for next level & retry buttons
+    const nextTest = document.getElementById("nextTest");
+        nextTest.addEventListener("click", () => {
+            window.location.href = '/next-speed-test';
+        });
+
+    const retryButton = document.getElementById("retryLevel");
+    retryButton.addEventListener("click", () => location.reload());
+}
+
+
+function calculateResults(counters) {
     // Records the time of when user finishes the level
     counters.endTime = new Date();
 
@@ -32,26 +50,45 @@ function speedTestCompleted(counters) {
     const totalAttempts = correctCount + incorrectCount + counters.backspaceCount;
     const accuracy = Math.floor((correctCount / totalAttempts) * 100);
 
-    // Calls showReviewModal function (shows the review modal)
-    showSpeedTestModal(correctCount, incorrectCount, totalTime, wpm, accuracy);
-
-    // Event listeners for next level & retry buttons #TODO
-    const nextTest = document.getElementById("nextTest");
-        nextTest.addEventListener("click", () => location.reload());
-
-    const retryButton = document.getElementById("retryLevel");
-    retryButton.addEventListener("click", );
+    // Creates object to store all the data that will be displayed on screen & sent to the server-side
+    const results = {
+        correctCount,
+        incorrectCount,
+        totalTime,
+        wpm,
+        accuracy
+    }
+    return results;
 }
 
-function showSpeedTestModal(correctCount, incorrectCount, totalTime, wpm, accuracy) {
+
+function showSpeedTestModal(results) {
     const speedTestModal = document.getElementById("speedTestModal");
 
-    document.getElementById("correctCount").textContent = `Correct: ${correctCount}`;
-    document.getElementById("incorrectCount").textContent = `Incorrect: ${incorrectCount}`;
-    document.getElementById("totalTime").textContent = `Time: ${totalTime.toFixed(2)} seconds`;
-    document.getElementById("wpm").textContent = `WPM: ${wpm.toFixed(2)}`;
-    document.getElementById("accuracy").textContent = `Accuracy: ${accuracy}%`;
+    document.getElementById("correctCount").textContent = `Correct: ${results.correctCount}`;
+    document.getElementById("incorrectCount").textContent = `Incorrect: ${results.incorrectCount}`;
+    document.getElementById("totalTime").textContent = `Time: ${results.totalTime.toFixed(2)} seconds`;
+    document.getElementById("wpm").textContent = `WPM: ${results.wpm.toFixed(2)}`;
+    document.getElementById("accuracy").textContent = `Accuracy: ${results.accuracy}%`;
 
     speedTestModal.style.display = "block";
+
+    sendResults(results);
+}
+
+function sendResults(results) {
+    try {
+        // Sends the results object in JSON format to review-results endpoint
+        fetch("/speed-test-results", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(results)
+        })
+    } 
+    catch (error) {
+        console.error("Error: failed to send results", error);
+    }
 }
 

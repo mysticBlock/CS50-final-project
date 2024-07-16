@@ -14,14 +14,14 @@ nltk.download('gutenberg')
 # Loads texts from the Gutenberg corpus
 texts = [
     nltk.corpus.gutenberg.raw('austen-emma.txt'),
-    nltk.corpus.gutenberg.raw('melville-moby_dick.txt'),
-    nltk.corpus.gutenberg.raw('bible-kjv.txt')
+    nltk.corpus.gutenberg.raw('carroll-alice.txt'),
+    nltk.corpus.gutenberg.raw('bryant-stories.txt')
 ]
 
 # Builds individual Markov models
 models = [markovify.Text(text) for text in texts]
 
-# Combines the models (used to generate sentences for speed test)
+# Combines the models (used to generate texts for speed test)
 combinedModel = markovify.combine(models)
 
 app = Flask(__name__)
@@ -72,6 +72,8 @@ def error():
 @app.route("/")
 @login_required
 def index():
+    # Removes the stored random text from the session when user navigates to index
+    session.pop("stored_random_text", None)
     id = session["user_id"]
     cursor = get_db()
     cursor.execute("SELECT username FROM users WHERE id = ?", (id,))
@@ -188,18 +190,18 @@ def profile():
     highestLevelCompleted = cursor.fetchone()[0]
 
     # Gets the average wpm
-    cursor.execute("SELECT wpm FROM scores WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT wpm FROM speed_scores WHERE user_id = ?", (user_id,))
     allWpm = cursor.fetchall()
-    wpmValues = [row['wpm'] for row in allWpm]
+    wpmValues = [row["wpm"] for row in allWpm]
     if wpmValues:
         averageWpm = sum(wpmValues) / len(wpmValues)
     else:
         averageWpm = 0
 
     #Gets the average accuracy
-    cursor.execute("SELECT accuracy FROM scores WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT accuracy FROM speed_scores WHERE user_id = ?", (user_id,))
     allAccuracy = cursor.fetchall()
-    accuracyValues = [row['accuracy'] for row in allAccuracy]
+    accuracyValues = [row["accuracy"] for row in allAccuracy]
     if accuracyValues:
         averageAccuracy = sum(accuracyValues) / len(accuracyValues)
     else:
@@ -208,18 +210,57 @@ def profile():
     return render_template("profile.html", highestLevelCompleted=highestLevelCompleted, averageWpm=averageWpm, averageAccuracy=averageAccuracy) 
 
 
-# Generates random sentences
-def generate_sentence(model, max_length=100):
-    sentence = model.make_sentence()
-    if sentence and len(sentence) > max_length:
-        sentence = sentence[:max_length].rsplit(' ', 1)[0]  # Ensure not to cut words in the middle
-    return sentence
+# Generates random text based on markov model
+def generate_randomText(model, min_length=50, max_length=100):
+    randomText = None
+    while randomText is None or len(randomText) < min_length:
+        randomText = model.make_sentence()
+
+    if randomText and len(randomText) > max_length:
+        randomText = randomText[:max_length].rsplit(' ', 1)[0]  # Ensure not to cut words in the middle
+    return randomText
 
 @app.route("/speed-test")
 @login_required
 def speed_test():
-    sentences = generate_sentence(combinedModel)
-    return render_template("speed_test.html", sentences=sentences)
+    storedRandomText = session.get("stored_random_text")
+    if storedRandomText:
+        randomText = storedRandomText
+    else:
+        randomText = generate_randomText(combinedModel)
+        session["stored_random_text"] = randomText
+    
+    return render_template("speed_test.html", randomText=randomText)
+
+
+@app.route("/speed-test-results", methods=["POST"])
+@login_required
+def speed_test_results():
+    # Gets the JSON data sent from the JS sendResults function
+    data = request.get_json()
+
+    # Assigns the data from JS to variables to use in py
+    user_id = session["user_id"]
+    correctCount = data.get("correctCount", 0)
+    incorrectCount = data.get("incorrectCount", 0)
+    totalTime = data.get("totalTime", 0)
+    wpm = data.get("wpm", 0)
+    accuracy = data.get("accuracy", 0)
+
+    # Inserts data from JS into speed_scores database
+    cursor = get_db()
+    cursor.execute("INSERT INTO speed_scores (user_id, correct, incorrect, time, wpm, accuracy) VALUES ( ?, ?, ?, ?, ?, ?)",
+                   (user_id, correctCount, incorrectCount, totalTime, wpm, accuracy))
+    cursor.connection.commit()
+    return jsonify({"message": "Results inserted into db"})
+    
+
+
+@app.route("/next-speed-test")
+@login_required
+def next_level():
+    session.pop("stored_random_text", None)
+    return redirect('speed-test')
 
 
 # Dynamic route for all levels
@@ -251,48 +292,6 @@ def level_view(level_type, level_number):
     
 
     return render_template(templateName, isReview=isReview, isTutorial=isTutorial)
-
-
-@app.route("/review-results", methods=["POST"])
-@login_required
-def review_results():
-    data = request.get_json()  # Get the JSON data sent from the JS
-    
-    # Assigns the data from JS to variables to use in py
-    user_id = session["user_id"]
-    levelNumber = session["level_number"]
-    correctCount = data.get("correctCount", 0)
-    incorrectCount = data.get("incorrectCount", 0)
-    totalTime = data.get("totalTime", 0)
-    wpm = data.get("wpm", 0)
-    accuracy = data.get("accuracy", 0)
-    score = data.get("score", 0)
-
-    # Inserts data from JS into database
-    cursor = get_db()
-    cursor.execute("SELECT level FROM scores WHERE user_id = ?", (user_id,))
-    reviewLevelsCompleted = [row[0] for row in cursor.fetchall()]
-
-    # Checks if the level is already completed by the user
-    if int(levelNumber) in reviewLevelsCompleted:
-        cursor.execute("SELECT score FROM scores WHERE user_id = ? AND level = ?", (user_id, levelNumber))
-        currentLevelExistingScore = cursor.fetchone()["score"]
-
-        if currentLevelExistingScore < score:
-            cursor.execute("UPDATE scores SET correct = ?, incorrect = ?, time = ?, wpm = ?, accuracy = ?, score = ? WHERE user_id = ? AND level = ?",
-                            (correctCount, incorrectCount, totalTime, wpm, accuracy, score, user_id, levelNumber))
-            cursor.connection.commit()
-            return jsonify({"message": "Updated results inserted into db"})
-    
-        else:
-            return jsonify({"message": "Score is lower, no update made"})
-    
-    else:
-        cursor.execute("INSERT INTO scores (user_id, level, correct, incorrect, time, wpm, accuracy, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                   (user_id, levelNumber, correctCount, incorrectCount, totalTime, wpm, accuracy, score))
-        
-        cursor.connection.commit()
-        return jsonify({"message": "Results inserted into db"})
 
 
 # Saves the highest level completed into the db at highest_level_completed

@@ -107,7 +107,7 @@ function calculateResults(currentLevel, counters, levelProgression) {
     const score = Math.floor((weightAccuracy * accuracy) + (weightWpm * wpm))  // Score they get to pass the level
     const passScore = levelProgression[currentLevel].passScore // Score they have to beat to pass the level (from object)
 
-    // Creates object to store all the data that will be displayed on screen & sent to the server-side
+    // Creates object to store all the data that will be displayed on screen
     const results = {
         correctCount,
         incorrectCount,
@@ -117,11 +117,10 @@ function calculateResults(currentLevel, counters, levelProgression) {
         score,
         passScore
     }
-    return results
-        
+    return results;      
 }
 
-// Displays the review results modal and sends the results to the server where they are stored in the db
+// Displays the review results modal
 function showReviewModal(results) {
     const resultsModal = document.getElementById("reviewResultsModal");
 
@@ -135,25 +134,8 @@ function showReviewModal(results) {
     resultsModal.style.display = "block";
 
     toggleButtons(results.score, results.passScore);
-    sendResults(results);
 }
 
-
-function sendResults(results) {
-    try {
-        // Sends the results object in JSON format to review-results endpoint
-        fetch("/review-results", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(results)
-        })
-    } 
-    catch (error) {
-        console.error("Error: failed to send results", error);
-    }
-}
 
 function updateHighestLevelCompleted(score, passScore, isTutorialLevel) {
     // Calls complete-level route (updates the highest_level_completed in db)
