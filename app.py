@@ -303,6 +303,7 @@ def complete_level():
     levelNumber = session["level_number"]
     score = data.get("score", 0)
     passScore = data.get("passScore", 0)
+    accuracy = data.get("accuracy", 0)
 
     if levelNumber is not None:
         levelNumber = int(levelNumber)
@@ -320,7 +321,8 @@ def complete_level():
             else:
                 return jsonify({"message": "Not the highest level the user has completed"})
         else:
-            if levelNumber > currentHighestLevel and score >= passScore:
+            # User has to get a better score than the pass score and a higher accuracy than 70 so they can just spam random keys and pass
+            if levelNumber > currentHighestLevel and score >= passScore and accuracy > 70:
                 cursor.execute("UPDATE users SET highest_level_completed = ? WHERE id = ?", (levelNumber, user_id))
                 cursor.connection.commit()
                 return jsonify({"message": "Success"})

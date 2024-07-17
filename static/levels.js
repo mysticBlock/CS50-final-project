@@ -40,9 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
-    // Initializes the score and passScore so they can be passed into the updateHighestLevelCompleted parameters at the end 
+    // Initializes the score, passScore and accuracy so they can be passed into the updateHighestLevelCompleted parameters at the end 
     let score = 0;
     let passScore = 0;
+    let accuracy = 0;
 
     if (isTutorialLevel) {
         showTutorialModal();
@@ -53,9 +54,10 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
     else if (isReviewLevel) {
         const results = calculateResults(currentLevel, counters, levelProgression);
 
-        // Updates score and passScore values to pe passed into updateHighestLevelCompleted
+        // Updates score, passScore and accuracy values to be passed into updateHighestLevelCompleted
         score = results.score;
         passScore = results.passScore;
+        accuracy = results.accuracy;
 
         // Calls showReviewModal function (shows the review modal)
         showReviewModal(results);
@@ -73,7 +75,7 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
     }
     
     // Updates the highest level completed in db 
-    updateHighestLevelCompleted(score, passScore, isTutorialLevel);
+    updateHighestLevelCompleted(score, passScore, accuracy, isTutorialLevel);
 }
 
 // Displays the tutorial modal
@@ -133,11 +135,11 @@ function showReviewModal(results) {
 
     resultsModal.style.display = "block";
 
-    toggleButtons(results.score, results.passScore);
+    toggleButtons(results.score, results.passScore, results.accuracy);
 }
 
 
-function updateHighestLevelCompleted(score, passScore, isTutorialLevel) {
+function updateHighestLevelCompleted(score, passScore, accuracy, isTutorialLevel) {
     // Calls complete-level route (updates the highest_level_completed in db)
         fetch("/complete-level", {
             method: "POST",
@@ -147,6 +149,7 @@ function updateHighestLevelCompleted(score, passScore, isTutorialLevel) {
             body: JSON.stringify({
                 score: score,
                 passScore: passScore,
+                accuracy: accuracy,
                 isTutorial: isTutorialLevel
             })
         })
@@ -175,10 +178,21 @@ function nextLevel(currentLevel, levelProgression) {
 }
 
 
-// Shows corresponding button if user passes or fails the level
-function toggleButtons(score, passScore) {
+// Shows corresponding button and message if user passes or fails the level
+function toggleButtons(score, passScore, accuracy) {
     const nextLevelButton = document.getElementById("reviewNextLevel");
+    const levelStatus = document.getElementById("levelStatus");
 
-    score > passScore ? nextLevelButton.style.display = "inline-block" 
+    if (score > passScore && accuracy > 70) {
+        nextLevelButton.style.display = "inline-block"
+        levelStatus.textContent ="Level Complete!"
+
+    }
+    else {
+        nextLevelButton.style.display = "none";
+        levelStatus.textContent ="Level Failed :("
+    }
+
+    score > passScore && accuracy > 70 ? nextLevelButton.style.display = "inline-block" 
     : nextLevelButton.style.display = "none";
 }  
