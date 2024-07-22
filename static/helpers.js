@@ -37,14 +37,37 @@ export function initializeLevel(paragraph, isTutorialLevel, counters) {
 }
 
 function renderChars(paragraph) {
-    for (let i = 0; i < paragraph.length; i++) {
-        const char = paragraph[i];
-        const span = document.createElement("span");
-        span.className = "letter";
-        span.textContent = char === " " ? "_" : char;  // Uses a visible representation for space
-        span.id = "letter-" + i;
-        wordContainer.appendChild(span);
-    }
+    // Wraps each word in a span and then each character within those word spans
+    const words = paragraph.split(' ');
+
+    let charIndex = 0;
+
+    words.forEach((word, wordIndex) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word';
+
+        for (let i = 0; i < word.length; i++) {
+            const char = word[i];
+            const charSpan = document.createElement('span');
+            charSpan.className = 'letter';
+            charSpan.textContent = char;
+            charSpan.id = `char-${charIndex}`;
+            wordSpan.appendChild(charSpan);
+            charIndex++;
+        }
+        wordContainer.appendChild(wordSpan);
+
+        // Add a space span unless it's the last word
+        if (wordIndex < words.length - 1) {
+            const spaceSpan = document.createElement('span');
+            spaceSpan.className = 'space';
+            spaceSpan.textContent = ' ';
+            spaceSpan.id = `char-${charIndex}`;
+            wordContainer.appendChild(spaceSpan);
+            charIndex++;
+        }
+    });
+    
 }
 
 function reviewLogic(event, counters, paragraph) {
@@ -56,7 +79,7 @@ function reviewLogic(event, counters, paragraph) {
         counters.startTime = new Date();
     }
     // Variable to change the color of the letter
-    const currentLetter = document.getElementById("letter-" + counters.currentIndex);
+    const currentLetter = document.getElementById("char-" + counters.currentIndex);
     // The key the user needs to press to get it correct
     const correctKey =  paragraph[counters.currentIndex] === " " ? " " : paragraph[counters.currentIndex];
 
@@ -64,7 +87,7 @@ function reviewLogic(event, counters, paragraph) {
         counters.currentIndex--;
         counters.backspaceCount++;
 
-        const prevLetter = document.getElementById("letter-" + counters.currentIndex);
+        const prevLetter = document.getElementById("char-" + counters.currentIndex);
         if (prevLetter.classList.contains("correct")) {
             counters.correctCount--;
         }
@@ -94,7 +117,7 @@ function tutorialLogic(event, counters, paragraph) {
     if (event.key === "Shift" || event.key === "CapsLock") return;
 
     // Variable to change the color of the letter
-    const currentLetter = document.getElementById("letter-" + counters.currentIndex);
+    const currentLetter = document.getElementById("char-" + counters.currentIndex);
     // The key the user needs to press to get it correct
     const correctKey = paragraph[counters.currentIndex] === " " ? " " : paragraph[counters.currentIndex];
 

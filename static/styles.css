@@ -4,6 +4,7 @@
 	box-sizing: border-box;
 }
 
+/* main navbar */
 #navbar {
     background-color: lightblue;
     width: 100%;
@@ -48,7 +49,7 @@
     transition: 0.2s;
 }
 
-/* dropdown */
+/* dropdown for profile */
 #dropdown {
     position: relative;
 }
@@ -98,6 +99,11 @@
     display: inline-block;
     font-size: 2em;
     padding: 5px;
+    white-space: nowrap;
+}
+.space {
+    display: inline-block;
+    width: 1em;
 }
 .correct {
     color: green;
