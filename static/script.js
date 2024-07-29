@@ -4,8 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const levelNumber = parseInt(button.dataset.levelNumber);
         if (levelNumber > highestLevelCompleted + 1) {
             button.disabled = true;
+            button.classList.add("button-disabled");
         } else {
             button.disabled = false;
+            button.classList.remove("button-disabled");
         }
     });
 

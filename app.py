@@ -82,7 +82,7 @@ def index():
     # To render the unlocked or locked buttons
     cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (id,))
     highestLevelCompleted = cursor.fetchone()[0]
-    return render_template("index.html", username=username[0] if username else None, highestLevelCompleted=highestLevelCompleted)
+    return render_template("index.html", highestLevelCompleted=highestLevelCompleted)
 
 
 @app.route("/login", methods=["GET", "POST"])
