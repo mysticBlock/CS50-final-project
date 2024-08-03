@@ -37,19 +37,26 @@ export function initializeLevel(paragraph, isTutorialLevel, counters) {
 }
 
 function renderChars(paragraph) {
+    // Creates the cursor
+    const cursor = document.createElement("div");
+    cursor.id = "cursor";
+    cursor.className = "cursor blink";
+    wordContainer.appendChild(cursor);
+    
     // Wraps each word in a span and then each character within those word spans
-    const words = paragraph.split(' ');
+    const words = paragraph.split(" ");
+    console.log(words)
 
     let charIndex = 0;
 
     words.forEach((word, wordIndex) => {
-        const wordSpan = document.createElement('span');
-        wordSpan.className = 'word';
+        const wordSpan = document.createElement("span");
+        wordSpan.className = "word";
 
         for (let i = 0; i < word.length; i++) {
             const char = word[i];
-            const charSpan = document.createElement('span');
-            charSpan.className = 'letter';
+            const charSpan = document.createElement("span");
+            charSpan.className = "letter";
             charSpan.textContent = char;
             charSpan.id = `char-${charIndex}`;
             wordSpan.appendChild(charSpan);
@@ -59,15 +66,27 @@ function renderChars(paragraph) {
 
         // Add a space span unless it's the last word
         if (wordIndex < words.length - 1) {
-            const spaceSpan = document.createElement('span');
-            spaceSpan.className = 'space';
-            spaceSpan.textContent = ' ';
+            const spaceSpan = document.createElement("span");
+            spaceSpan.className = "space";
+            spaceSpan.textContent = " "; 
             spaceSpan.id = `char-${charIndex}`;
             wordContainer.appendChild(spaceSpan);
             charIndex++;
         }
     });
-    
+     // Initializes cursor position
+    updateCursor();
+}
+
+function updateCursor() {
+    const cursor = document.getElementById("cursor");
+    const currentLetter = document.getElementById("char-" + counters.currentIndex);
+
+    if (currentLetter) {
+        const rect = currentLetter.getBoundingClientRect();
+        cursor.style.left = `${rect.left}px`;
+        cursor.style.top = `${rect.top}px`;
+    }
 }
 
 function reviewLogic(event, counters, paragraph) {
@@ -78,6 +97,13 @@ function reviewLogic(event, counters, paragraph) {
     if (!counters.startTime) {
         counters.startTime = new Date();
     }
+
+    // Stops cursor blinking
+    const cursor = document.getElementById("cursor");
+    if (cursor.classList.contains('blink')) {
+        cursor.classList.remove('blink'); 
+    }
+
     // Variable to change the color of the letter
     const currentLetter = document.getElementById("char-" + counters.currentIndex);
     // The key the user needs to press to get it correct
@@ -109,12 +135,19 @@ function reviewLogic(event, counters, paragraph) {
             counters.incorrectCount++;
             counters.currentIndex++;
         }
-    }  
+    } 
+    updateCursor(); 
 }
 
 function tutorialLogic(event, counters, paragraph) {
     // Returns if caps lock or shift is pressed then listens for the next key
     if (event.key === "Shift" || event.key === "CapsLock") return;
+
+    // Stops cursor blinking
+    const cursor = document.getElementById("cursor");
+    if (cursor.classList.contains('blink')) {
+        cursor.classList.remove('blink'); 
+    }
 
     // Variable to change the color of the letter
     const currentLetter = document.getElementById("char-" + counters.currentIndex);
@@ -129,6 +162,8 @@ function tutorialLogic(event, counters, paragraph) {
         } else {
             currentLetter.classList.remove("correct");
             currentLetter.classList.add("incorrect");
+            currentLetter.classList.add("shake");
         }
     }
+    updateCursor(); 
 }

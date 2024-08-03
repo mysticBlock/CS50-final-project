@@ -291,7 +291,7 @@ def level_view(level_type, level_number):
     templateName = f"levels/level_{level_number}_{level_type}.html"
     
 
-    return render_template(templateName, isReview=isReview, isTutorial=isTutorial)
+    return render_template(templateName, isReview=isReview, isTutorial=isTutorial, levelNumber=levelNumber)
 
 
 # Saves the highest level completed into the db at highest_level_completed

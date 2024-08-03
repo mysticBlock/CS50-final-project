@@ -1,4 +1,4 @@
-import { counters, setupValues, initializeLevel} from "./helpers.js";
+import { counters, setupValues, initializeLevel } from "./helpers.js";
 
 //  Gets setup values
 const { paragraph, isTutorialLevel } = setupValues();

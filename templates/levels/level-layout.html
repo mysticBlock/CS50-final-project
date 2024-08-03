@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>Type Journey: Level {{ currentLevel }}</title>
+    <title>Type Journey: Level {{ levelNumber }}</title>
   </head>
   <body>
     <header>
-      <nav id="level-navbar">
-        <h1>Level {{ currentLevel }}</h1>
+      <nav class="navbar level-navbar" >
+        <h1>Level {{ levelNumber }}</h1>
         <ul>
-            <li><a href="/">exit</a></li>
+            <li><a href="/" class="exit-link">Exit</a></li>
         </ul>
       </nav>
     </header>

@@ -1,37 +1,37 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Home Page
+  Home Page
 {% endblock %}
 
 {% block main %}
-    <div id="home-row">
-        <h2>Home Row</h2>
-        <div id="button-container">
-            <button onclick="location.href='/levels/tutorial/1'" class="level-button" data-level-number="1">f & j</button>
-            <button onclick="location.href='/levels/tutorial/2'" class="level-button" data-level-number="2">Space Bar</button>
-            <button onclick="location.href='/levels/review/3'" class="level-button" data-level-number="3">f & j Review</button>
-            <button onclick="location.href='/levels/tutorial/4'" class="level-button" data-level-number="4">d & k</button>
-            <button onclick="location.href='/levels/review/5'" class="level-button" data-level-number="5">d & k Review</button>
-            <button onclick="location.href='/levels/review/6'" class="level-button" data-level-number="6">Progress Review</button>
-            <button onclick="location.href='/levels/tutorial/7'" class="level-button" data-level-number="7">s & l</button>
-            <button onclick="location.href='/levels/review/8'" class="level-button" data-level-number="8">s & l Review</button>
-            <button onclick="location.href='/levels/review/9'" class="level-button" data-level-number="9">Progress Review</button>
-            <button onclick="location.href='/levels/tutorial/10'" class="level-button" data-level-number="10">a & ;</button>
-            <button onclick="location.href='/levels/review/11'" class="level-button" data-level-number="11">a & ; Review</button>
-            <button onclick="location.href='/levels/review/12'" class="level-button" data-level-number="12">Progress Review</button>
-            <button onclick="location.href='/levels/tutorial/13'" class="level-button" data-level-number="13">g & h</button>
-            <button onclick="location.href='/levels/review/14'" class="level-button" data-level-number="14">g & h Review</button>
-            <button onclick="location.href='/levels/review/15'" class="level-button" data-level-number="15">Left Hand Review</button>
-            <button onclick="location.href='/levels/review/16'" class="level-button" data-level-number="16">Right Hand Review</button>
-            <button onclick="location.href='/levels/review/17'" class="level-button" data-level-number="17">Home Row Review</button>
-        </div>
+  <div id="home-row">
+    <h2>Home Row</h2>
+    <div id="button-container">
+      <button onclick="location.href='/levels/tutorial/1'" class="level-button" data-level-number="1">f & j</button>
+      <button onclick="location.href='/levels/tutorial/2'" class="level-button" data-level-number="2">Space Bar</button>
+      <button onclick="location.href='/levels/review/3'" class="level-button" data-level-number="3">f & j Review</button>
+      <button onclick="location.href='/levels/tutorial/4'" class="level-button" data-level-number="4">d & k</button>
+      <button onclick="location.href='/levels/review/5'" class="level-button" data-level-number="5">d & k Review</button>
+      <button onclick="location.href='/levels/review/6'" class="level-button" data-level-number="6">Progress Review</button>
+      <button onclick="location.href='/levels/tutorial/7'" class="level-button" data-level-number="7">s & l</button>
+      <button onclick="location.href='/levels/review/8'" class="level-button" data-level-number="8">s & l Review</button>
+      <button onclick="location.href='/levels/review/9'" class="level-button" data-level-number="9">Progress Review</button>
+      <button onclick="location.href='/levels/tutorial/10'" class="level-button" data-level-number="10">a & ;</button>
+      <button onclick="location.href='/levels/review/11'" class="level-button" data-level-number="11">a & ; Review</button>
+      <button onclick="location.href='/levels/review/12'" class="level-button" data-level-number="12">Progress Review</button>
+      <button onclick="location.href='/levels/tutorial/13'" class="level-button" data-level-number="13">g & h</button>
+      <button onclick="location.href='/levels/review/14'" class="level-button" data-level-number="14">g & h Review</button>
+      <button onclick="location.href='/levels/review/15'" class="level-button" data-level-number="15">Left Hand Review</button>
+      <button onclick="location.href='/levels/review/16'" class="level-button" data-level-number="16">Right Hand Review</button>
+      <button onclick="location.href='/levels/review/17'" class="level-button" data-level-number="17">Home Row Review</button>
     </div>
+</div>
 {% endblock %}
 
 {% block script %}
-    <script>
-        const highestLevelCompleted = {{ highestLevelCompleted|tojson }};
-    </script>
-    <script src = "{{ url_for('static', filename='script.js') }}"></script>
+  <script>
+    const highestLevelCompleted = {{ highestLevelCompleted|tojson }};
+  </script>
+  <script src = "{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}
