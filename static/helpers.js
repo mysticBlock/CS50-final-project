@@ -43,36 +43,37 @@ function renderChars(paragraph) {
     cursor.className = "cursor blink";
     wordContainer.appendChild(cursor);
     
+    // Uses regex to split the paragraph into words whilst saving the spaces
+    let words = paragraph.split(/( )/);
+
     // Wraps each word in a span and then each character within those word spans
-    const words = paragraph.split(" ");
-    console.log(words)
-
     let charIndex = 0;
-
-    words.forEach((word, wordIndex) => {
+    words.forEach((word) => {
         const wordSpan = document.createElement("span");
-        wordSpan.className = "word";
+        if (word === " ") {
+            wordSpan.className = "space"
+        }
+        else {
+            wordSpan.className = "word";
+        } 
 
         for (let i = 0; i < word.length; i++) {
             const char = word[i];
             const charSpan = document.createElement("span");
             charSpan.className = "letter";
-            charSpan.textContent = char;
+
+            if (char === " ") {
+                charSpan.classList.add("letter-space");
+                charSpan.textContent = "\u00A0";
+            }
+            else {
+                charSpan.textContent = char;
+            }
             charSpan.id = `char-${charIndex}`;
             wordSpan.appendChild(charSpan);
             charIndex++;
         }
         wordContainer.appendChild(wordSpan);
-
-        // Add a space span unless it's the last word
-        if (wordIndex < words.length - 1) {
-            const spaceSpan = document.createElement("span");
-            spaceSpan.className = "space";
-            spaceSpan.textContent = " "; 
-            spaceSpan.id = `char-${charIndex}`;
-            wordContainer.appendChild(spaceSpan);
-            charIndex++;
-        }
     });
      // Initializes cursor position
     updateCursor();
@@ -80,10 +81,10 @@ function renderChars(paragraph) {
 
 function updateCursor() {
     const cursor = document.getElementById("cursor");
-    const currentLetter = document.getElementById("char-" + counters.currentIndex);
+    const currentChar = document.getElementById("char-" + counters.currentIndex);
 
-    if (currentLetter) {
-        const rect = currentLetter.getBoundingClientRect();
+    if (currentChar) {
+        const rect = currentChar.getBoundingClientRect();
         cursor.style.left = `${rect.left}px`;
         cursor.style.top = `${rect.top}px`;
     }
@@ -104,8 +105,8 @@ function reviewLogic(event, counters, paragraph) {
         cursor.classList.remove('blink'); 
     }
 
-    // Variable to change the color of the letter
-    const currentLetter = document.getElementById("char-" + counters.currentIndex);
+    // Variable to change the color of the char
+    const currentChar = document.getElementById("char-" + counters.currentIndex);
     // The key the user needs to press to get it correct
     const correctKey =  paragraph[counters.currentIndex] === " " ? " " : paragraph[counters.currentIndex];
 
@@ -113,7 +114,13 @@ function reviewLogic(event, counters, paragraph) {
         counters.currentIndex--;
         counters.backspaceCount++;
 
+        // Replaces the wrong letter they typed to a space so they can attempt it again
         const prevLetter = document.getElementById("char-" + counters.currentIndex);
+        if (prevLetter.classList.contains("letter-space")) {
+            prevLetter.textContent = "\u00A0";
+            counters.incorrectCount--;
+        }
+
         if (prevLetter.classList.contains("correct")) {
             counters.correctCount--;
         }
@@ -124,14 +131,21 @@ function reviewLogic(event, counters, paragraph) {
     }
     else if (counters.currentIndex < paragraph.length) {
         if (event.key === correctKey) {
-            currentLetter.classList.remove("incorrect");
-            currentLetter.classList.add("correct");
+            currentChar.classList.remove("incorrect");
+            currentChar.classList.add("correct");
             counters.correctCount++;
             counters.currentIndex++;
         }
+        else if (correctKey === " " && event.key !== correctKey) {
+            currentChar.classList.remove("correct");
+            currentChar.classList.add("incorrect");
+            currentChar.textContent = event.key ;
+            counters.incorrectCount++;
+            counters.currentIndex++;   
+        }
         else {
-            currentLetter.classList.remove("correct");
-            currentLetter.classList.add("incorrect");
+            currentChar.classList.remove("correct");
+            currentChar.classList.add("incorrect");
             counters.incorrectCount++;
             counters.currentIndex++;
         }
@@ -150,19 +164,19 @@ function tutorialLogic(event, counters, paragraph) {
     }
 
     // Variable to change the color of the letter
-    const currentLetter = document.getElementById("char-" + counters.currentIndex);
+    const currentChar = document.getElementById("char-" + counters.currentIndex);
     // The key the user needs to press to get it correct
     const correctKey = paragraph[counters.currentIndex] === " " ? " " : paragraph[counters.currentIndex];
 
     if (counters.currentIndex < paragraph.length) {
         if (event.key === correctKey) {
-            currentLetter.classList.remove("incorrect");
-            currentLetter.classList.add("correct");
+            currentChar.classList.remove("incorrect");
+            currentChar.classList.add("correct");
             counters.currentIndex++;
         } else {
-            currentLetter.classList.remove("correct");
-            currentLetter.classList.add("incorrect");
-            currentLetter.classList.add("shake");
+            currentChar.classList.remove("correct");
+            currentChar.classList.add("incorrect");
+            currentChar.classList.add("shake");
         }
     }
     updateCursor(); 
