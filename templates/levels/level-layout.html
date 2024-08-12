@@ -21,21 +21,30 @@
             <dialog id="reviewResultsModal" class="modal">
                 <div class="modal-content">
                     <h1 id ="levelStatus"></h1>
-                    <p id="correctCount"></p>   
-                    <p id="incorrectCount"></p>
-                    <p id="totalTime"></p>
-                    <p id="wpm"></p>
-                    <p id="accuracy"></p>
-                    <p id="score"></p>
-                    <button id="reviewNextLevel" class="nextLevelButton">Continue</button>
-                    <button id="retryLevel" class="retryLevelButton">Retry</button>
+                    <div class="stat-container">                                      
+                      <p id="correctCount" class="stats"></p>   
+                      <p id="incorrectCount" class="stats"></p>
+                      <p id="totalTime" class="stats"></p>
+                      <p id="wpm" class="stats"></p>
+                      <p id="accuracy" class="stats"></p>
+                      <p id="score" class="stats"></p>
+                      <p id="passScore" class="stats"></p>
+                    </div>
+                    <div class="button-container">
+                      <button id ="modalReturnHome">Home</button>
+                      <button id="retryLevel" class="retryLevelButton">Retry</button>
+                      <button id="reviewNextLevel" class="nextLevelButton">Continue</button> 
+                    </div>
                 </div>
             </dialog>
         {% elif isTutorial %}
             <dialog id="tutorialResultsModal" class="modal">
                 <div class="modal-content">
-                    <h1>Level Complete!</h1>
+                  <h1>Level Complete!</h1>
+                  <div class="button-container">
+                    <button id ="modalReturnHome">Home</button>
                     <button id="tutorialNextLevel" class="nextLevelButton">Continue</button>
+                  </div>
                 </div>
             </dialog>
         {% endif %}

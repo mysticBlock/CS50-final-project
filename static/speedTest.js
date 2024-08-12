@@ -23,11 +23,12 @@ function speedTestCompleted(counters) {
     // Calls showReviewModal function (shows the review modal)
     showSpeedTestModal(results);
 
-    // Event listeners for next level & retry buttons
+    // Event listeners for next level, retry & home buttons
     const nextTest = document.getElementById("nextTest");
-        nextTest.addEventListener("click", () => {
-            window.location.href = '/next-speed-test';
-        });
+    nextTest.addEventListener("click", () => window.location.href = "/next-speed-test");
+
+    const returnHome = document.getElementById("modalReturnHome");
+    returnHome.addEventListener("click", () => window.location.href = "/");
 
     const retryButton = document.getElementById("retryLevel");
     retryButton.addEventListener("click", () => location.reload());
@@ -67,7 +68,7 @@ function showSpeedTestModal(results) {
 
     document.getElementById("correctCount").textContent = `Correct: ${results.correctCount}`;
     document.getElementById("incorrectCount").textContent = `Incorrect: ${results.incorrectCount}`;
-    document.getElementById("totalTime").textContent = `Time: ${results.totalTime.toFixed(2)} seconds`;
+    document.getElementById("totalTime").textContent = `Time: ${results.totalTime.toFixed(2)}s`;
     document.getElementById("wpm").textContent = `WPM: ${results.wpm.toFixed(2)}`;
     document.getElementById("accuracy").textContent = `Accuracy: ${results.accuracy}%`;
 

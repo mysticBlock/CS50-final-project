@@ -64,7 +64,10 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
 
         // Event listeners for next level & retry buttons
         const reviewNextLevel = document.getElementById("reviewNextLevel");
-            reviewNextLevel.addEventListener("click", () => nextLevel(currentLevel, levelProgression));
+        reviewNextLevel.addEventListener("click", () => nextLevel(currentLevel, levelProgression));
+
+        const returnHome = document.getElementById("modalReturnHome");
+        returnHome.addEventListener("click", () => window.location.href = "/");
 
         const retryButton = document.getElementById("retryLevel");
         retryButton.addEventListener("click", () => location.reload());
@@ -128,10 +131,16 @@ function showReviewModal(results) {
 
     document.getElementById("correctCount").textContent = `Correct: ${results.correctCount}`;
     document.getElementById("incorrectCount").textContent = `Incorrect: ${results.incorrectCount}`;
-    document.getElementById("totalTime").textContent = `Time: ${results.totalTime.toFixed(2)} seconds`;
+    document.getElementById("totalTime").textContent = `Time: ${results.totalTime.toFixed(2)}s`;
     document.getElementById("wpm").textContent = `WPM: ${results.wpm.toFixed(2)}`;
     document.getElementById("accuracy").textContent = `Accuracy: ${results.accuracy}%`;
     document.getElementById("score").textContent = `Score: ${results.score}`;
+    if (results.score < results.passScore) {
+        document.getElementById("passScore").textContent = `Pass Score: ${results.passScore}`;
+    }
+    else if (results.score > results.passScore && results.accuracy < 70) {
+        document.getElementById("passScore").textContent = `Min accuracy: 70`;
+    }
 
     resultsModal.style.display = "block";
 

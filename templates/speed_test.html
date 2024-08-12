@@ -11,7 +11,7 @@
       <nav class="navbar level-navbar">
         <h1>Speed Test</h1>
         <ul>
-            <li><a href="/" class="exit-link">Exit</a></li>
+          <li><a href="/" class="exit-link">Exit</a></li>
         </ul>
       </nav>
     </header>
@@ -20,13 +20,18 @@
         <dialog id="speedTestModal" class="modal">
             <div class="modal-content">
                 <h1>Speed Test Completed!</h1>
-                <p id="correctCount"></p>   
-                <p id="incorrectCount"></p>
-                <p id="totalTime"></p>
-                <p id="wpm"></p>
-                <p id="accuracy"></p>
-                <button id="retryLevel" class="retryLevelButton">Retry</button>
-                <button id="nextTest" class="nextTestButton">Next Test</button>
+                <div class="stat-container">
+                  <p id="correctCount" class="stats"></p>   
+                  <p id="incorrectCount" class="stats"></p>
+                  <p id="totalTime" class="stats"></p>
+                  <p id="wpm" class="stats"></p>
+                  <p id="accuracy" class="stats"></p>
+                </div>
+                <div class="button-container">
+                  <button id ="modalReturnHome">Home</button>
+                  <button id="retryLevel" class="retryLevelButton">Retry</button>
+                  <button id="nextTest" class="nextTestButton">Next Test</button>
+                </div>
             </div>
         </dialog>
     </main>

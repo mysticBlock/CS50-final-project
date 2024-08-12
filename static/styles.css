@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;1,300&family=Roboto:ital,wght@0,900;1,900&display=swap');
+
 * {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+    font-family: "Roboto Mono Light";
 }
 
 :root {
@@ -18,6 +21,11 @@ body {
     height: 100vh;
 }
 
+h1, h2 {
+    font-family: "Roboto";
+    font-weight: 900;
+}
+
 /* main navbar */
 .navbar {
     background-color: var(--navbar-color);
@@ -32,7 +40,7 @@ body {
 
 .navbar h1 {
     color: var(--brand-color);
-    font-style: italic;
+    font-style: oblique;
 }
   
 .navbar ul {
@@ -127,6 +135,7 @@ body {
 .level-button {
     width: 125px;
     height: 125px;
+    font-size: 1rem;
     justify-self: center;
     align-self: center;
     border-radius: 10px;
@@ -234,16 +243,57 @@ body {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.4);
     padding-top: 60px;
 }
 .modal-content {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10%;
+    text-align: center;
     background-color: var(--secondary-color);
     margin: 5% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
+    color: var(--text-color);
+    font-weight: 500;
+    width: 85%;
+    height: 80%;
+    transform: scale(0.7);
+    opacity: 0;
+    animation: expand 0.5s ease forwards;
+}
+
+@keyframes expand {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-content h1 {
+    margin-top: 2%;
+    font-size: 3rem;
+}
+
+#tutorialResultsModal .modal-content h1 {
+    margin-bottom: 10%;
+}
+
+.stat-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 25px;
+    font-size: 1.5rem;
+}
+
+.button-container > button {
+    background-color: var(--brand-color);
+    width: 10%;
+    height: 40px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
 }
 
 .nextLevelButton {
