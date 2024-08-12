@@ -5,9 +5,20 @@
 {% endblock %}
 
 {% block main %}
-    {{ highestLevelCompleted }}
-    {{ averageWpm }}
-    {{ averageAccuracy }}
+    <div id="profile-stats">
+        <div>
+            <h2>Highest Level Completed</h2>
+            <h3>{{ highestLevelCompleted }}</h3>
+        </div>
+        <div>
+            <h2>Average Wpm</h2>
+            <h3>{{ averageWpm }}</h3>
+        </div>
+        <div>
+        <h2>Average Accuracy</h2>
+        <h3>{{ averageAccuracy }}</h3>
+        </div>
+    </div>
 {% endblock %}
 
 {% block script %}

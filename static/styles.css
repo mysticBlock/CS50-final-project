@@ -299,3 +299,13 @@ h1, h2 {
 .nextLevelButton {
     display: none;
 }
+
+#profile-stats {
+    margin-top: 15%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    row-gap: 70px;
+    color: var(--text-color);
+}

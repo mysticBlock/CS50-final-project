@@ -1,6 +1,7 @@
 import sqlite3
 import nltk
 import markovify
+import math
 
 
 from flask import Flask, flash, g, jsonify, redirect, render_template, request, session
@@ -194,7 +195,7 @@ def profile():
     allWpm = cursor.fetchall()
     wpmValues = [row["wpm"] for row in allWpm]
     if wpmValues:
-        averageWpm = sum(wpmValues) / len(wpmValues)
+        averageWpm = math.floor(sum(wpmValues) / len(wpmValues))
     else:
         averageWpm = 0
 
@@ -203,7 +204,7 @@ def profile():
     allAccuracy = cursor.fetchall()
     accuracyValues = [row["accuracy"] for row in allAccuracy]
     if accuracyValues:
-        averageAccuracy = sum(accuracyValues) / len(accuracyValues)
+        averageAccuracy = math.floor(sum(accuracyValues) / len(accuracyValues))
     else:
         averageAccuracy = 0
 
