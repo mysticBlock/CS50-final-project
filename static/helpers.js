@@ -175,6 +175,8 @@ function tutorialLogic(event, counters, paragraph) {
             counters.currentIndex++;
         } else {
             currentChar.classList.remove("correct");
+            // Removes letter-space so padding doesn't get applied when in tutorial level
+            currentChar.classList.remove("letter-space");
             currentChar.classList.add("incorrect");
             currentChar.classList.add("shake");
         }
