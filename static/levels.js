@@ -72,10 +72,6 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
         const retryButton = document.getElementById("retryLevel");
         retryButton.addEventListener("click", () => location.reload());
     }
-    else {
-        // TODO
-        console.log("isn't a review level")
-    }
     
     // Updates the highest level completed in db 
     updateHighestLevelCompleted(score, passScore, accuracy, isTutorialLevel);

@@ -135,6 +135,7 @@ h1, h2 {
 .level-button {
     width: 125px;
     height: 125px;
+    padding: 5px;
     font-size: 1rem;
     justify-self: center;
     align-self: center;
@@ -308,4 +309,38 @@ h1, h2 {
     text-align: center;
     row-gap: 70px;
     color: var(--text-color);
+}
+
+.login-register {
+    margin-top: 8%;
+    text-align: center;
+}
+
+.login-register h2 {
+    margin-bottom: 2%;
+    font-size: 2rem;
+    color: var(--text-color);
+}
+
+.login-register input {
+    min-height: 45px;
+    margin-bottom: 15px;
+    padding-left: 8px;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
+
+}
+
+.login-register button {
+    min-height: 45px;
+    min-width: 80px;
+    background-color: var(--brand-color);
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
+    cursor: pointer;
 }
