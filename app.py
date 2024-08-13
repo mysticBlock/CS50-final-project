@@ -159,6 +159,10 @@ def register():
         elif confirmPassword != password:
             flash("Passwords were not the same")
             return redirect("/error")
+        
+        elif len(password) < 8:
+            flash("Password must be at least 8 characters long")
+            return redirect("/error")
         else:
             # Hashes the users password
             hashedPassword = generate_password_hash(password)
@@ -186,7 +190,11 @@ def profile():
     cursor = get_db()
     user_id = session["user_id"]
 
-    #Gets the highest level completed
+    # Gets users username
+    cursor.execute("SELECT username FROM users WHERE id = ?", (user_id,))
+    username = cursor.fetchone()[0]
+
+    # Gets the highest level completed
     cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (user_id,))
     highestLevelCompleted = cursor.fetchone()[0]
 
@@ -208,7 +216,7 @@ def profile():
     else:
         averageAccuracy = 0
 
-    return render_template("profile.html", highestLevelCompleted=highestLevelCompleted, averageWpm=averageWpm, averageAccuracy=averageAccuracy) 
+    return render_template("profile.html", username=username, highestLevelCompleted=highestLevelCompleted, averageWpm=averageWpm, averageAccuracy=averageAccuracy) 
 
 
 # Generates random text based on markov model

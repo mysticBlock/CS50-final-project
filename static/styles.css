@@ -54,7 +54,7 @@ h1, h2 {
 }
 
 .nav-link {
-    margin-left: 2rem;
+    margin-left: 20px;
 }
 
 .navbar a {
@@ -77,9 +77,8 @@ h1, h2 {
 }
 
 #profile-icon {
-
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     cursor: pointer;
 }
@@ -119,7 +118,7 @@ h1, h2 {
 }
 
 #home-row h2 {
-    margin-top: 2rem;
+    margin-top: 32px;
     margin-left: 10%;
     color: var(--text-color);
 }
@@ -129,12 +128,13 @@ h1, h2 {
     padding: 20px 10%;
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    row-gap: 2rem;
+    gap: 32px;
 }
 
 .level-button {
-    width: 125px;
-    height: 125px;
+    min-width: 125px;
+    min-height: 125px;
+    aspect-ratio: 1 / 1;
     padding: 5px;
     font-size: 1rem;
     justify-self: center;
@@ -164,7 +164,8 @@ h1, h2 {
 
 /* Level functionality styles */
 #wordContainer {
-    margin-top: 15%;
+    width: 50%;
+    margin: 15% auto;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -302,7 +303,7 @@ h1, h2 {
 }
 
 #profile-stats {
-    margin-top: 15%;
+    margin-top: 8%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -343,6 +344,12 @@ h1, h2 {
     border-radius: 5px;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.4);
     cursor: pointer;
+}
+
+#error-message {
+    margin-top: 15%;
+    text-align: center;
+    color: var(--text-color);
 }
 
 .congratulations {
