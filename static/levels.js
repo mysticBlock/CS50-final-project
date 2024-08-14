@@ -48,6 +48,9 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
     if (isTutorialLevel) {
         showTutorialModal();
 
+        const returnHome = document.getElementById("tutorialModalReturnHome");
+        returnHome.addEventListener("click", () => window.location.href = "/");
+
         const tutorialNextLevel = document.getElementById("tutorialNextLevel"); 
         tutorialNextLevel.addEventListener("click", () => nextLevel(currentLevel, levelProgression));
     }
@@ -66,7 +69,7 @@ function levelCompleted(isTutorialLevel, isReviewLevel, currentLevel) {
         const reviewNextLevel = document.getElementById("reviewNextLevel");
         reviewNextLevel.addEventListener("click", () => nextLevel(currentLevel, levelProgression));
 
-        const returnHome = document.getElementById("modalReturnHome");
+        const returnHome = document.getElementById("reviewModalReturnHome");
         returnHome.addEventListener("click", () => window.location.href = "/");
 
         const retryButton = document.getElementById("retryLevel");
@@ -197,7 +200,4 @@ function toggleButtons(score, passScore, accuracy) {
         nextLevelButton.style.display = "none";
         levelStatus.textContent ="Level Failed :("
     }
-
-    score > passScore && accuracy > 70 ? nextLevelButton.style.display = "inline-block" 
-    : nextLevelButton.style.display = "none";
 }  

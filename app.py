@@ -75,12 +75,10 @@ def error():
 def index():
     # Removes the stored random text from the session when user navigates to index
     session.pop("stored_random_text", None)
-    id = session["user_id"]
-    cursor = get_db()
-    cursor.execute("SELECT username FROM users WHERE id = ?", (id,))
-    username = cursor.fetchone()
+    id = session["user_id"] 
 
     # To render the unlocked or locked buttons
+    cursor = get_db()
     cursor.execute("SELECT highest_level_completed FROM users WHERE id = ?", (id,))
     highestLevelCompleted = cursor.fetchone()[0]
     return render_template("index.html", highestLevelCompleted=highestLevelCompleted)
