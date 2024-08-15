@@ -1,25 +1,32 @@
-(introduction) i was inspired to create this web app as i have had to learn to type for coding.
+# Type Journey
 
-(login and register)
+#### Video demo:
+https://youtu.be/cajcw2xAhu8
 
-(levels and javascript)
-I'm using dynamic urls for the level routes instead of individual routes for each level. This is something I learned when trying to avoid the repetition of multiple routes that just rendered each level.
-I have decided to split the levels into two different catagories. Tutorials and reviews. The reason behind this is the functionality of how the program responds when a user presses a key. In the tutorials the the program wont move onto the next letter unless you get it right. Where in the reviews you can get letters wrong, and you can also correct them by using the backspace. The reviews keep track of how many letters you got right and wrong and how long it takes you to complete the review, this is what gives them their words per minute (wpm) on each review. The words per minute plus the percentage of how many letters they got right is what calculates their score. Their score, wpm and the number of words they got right and wrong is passed to the server using JSON. If their score is higher than the pass score and have a higher accuracy than 70 then they will unlock the next level.
-I used a modal for the results screen rather than a new html file so that the page didn't have to reload. To get the results on the screen I used Javascript to define variables and assign them to a result that i wanted to display. I then created a function (showReviewModal) that uses template literals to show the results on the modal. within this function it calls another function (sendResults) which uses the fetch method to send those results to python so they can be inserted into final.db using sql. It also calls toggleButtons which compares the score the user got to the passing score. If their score is higher it will display the next level button giving them access to the next level. If they dont pass they will only have access to the retry button
+#### Description:
+Type Journey is a web app designed for users to learn how to touch type.
 
-Next i needed to lock the levels and unlock them once the user has completed the previous one. First I had to disable the buttons that navigates to the levels that they havent unlocked yet whilst also making sure that the user couldn't just input the level type and number into the url which would then take them to that level and if they completed it, it would unlock all previous levels. this ment i had to add a highest_level_completed column in the users table so i could track the highest level the user has completed and if they tried to navigate to a level that they have not unlocked (highest level completed + 1) then they would be directed to error.html with a message. I used the fetch method again to send data to a route in app.py which has a series of conditionals which updates the highest_level_completed depending on wether they met the conditions to unlock the next level.
+**Login/logout & register:**
+When the user open’s Type Journey they will be directed to a login page. If they haven’t got an account they can register by clicking register in the navbar and filling out the form. For these files I used pretty much the same login/logout and register logic from week 9 finance. The only differences were in register where I made sure the password was 8 characters or longer and instead of using werkzeug.security I used flask_bcrypt for the check_password_hash and generate_password_hash functions.
 
-I then made a dropdown so users can see their profile and also logout. to do this i used a combination of youtube and chatgpt to help me make it look smooth with transitions.
+**Layout.html & level-layout.html:**
+I used these two files to render navbars onto the rest of my html files to avoid copy & pasting navbars in every html document. The layout.html template is a navbar for everything excluding level pages. It contains links to login.html and register.html if the user isn't logged in and links to the lessons (index.html), speedTest.html, and a profile icon which has a dropdown to logout or go to profile.html. The level-layout includes a slimmer navbar with only an exit button so the user can exit the level. It also includes a modal that gets displayed when the user completes a level.
 
-I then made the profile page. 
+**Index.html:**
+This is the main page. You can navigate to anywhere in the app from here by either clicking on the level buttons or navigating through the navbar. The main contents of this page are big buttons which navigate the user to the levels. When a new user discovers this page for the first time they will only have access to the first level. As they complete levels they will gain access to new levels. I have done this by using a sqlite database to store the users highest level completed and I used javascript to disable the buttons that are greater than their highest level completed +1 meaning they have access to the next level that they are yet to complete. I also made sure using python that if the disabled attribute on the buttons they haven't unlocked yet got maliciously removed that they would be directed to error.html with the message “You haven't unlocked this level yet.”
+Ensuring users can't skip levels without completing the last one. When a user completes all the levels they will be directed to congratulations.html congratulating them on finishing.
 
+**Levels:**
+For the levels I used a dynamic url for the route to avoid having a route for every level.
+I created a function called renderChars (in helpers.js) to render the words/letters for each level in span tags so that i could use a keydown event listener on each letter to know if the user got the letter right or wrong. I did this so all I had to have in html for all levels were a div element with a data attribute with the letters I wanted rendered onto the page.
+ 
+There are two different types of levels. Review levels and tutorial levels. Tutorial levels aim to teach the user which key is where on the keyboard by not advancing to the next letter until the user hits the right key. Review levels are used to test the user and they can press any key on the keyboard therefore they can get letters wrong (they can hit backspace and correct the letter). At the end of each level the user gets a score. The score is made up of the user's accuracy and their wpm (words per minute) for that level. Each review level has a pass score the user has to beat to move on to the next level.
 
-I then made the speed test page. now this made me think a lot because there is a lot of cross over logic between the review levels and this speed test page. So i decided to refactor my levels.js code and create a helpers.js with the functions and variables that would be used in both levels.js and speedTest.js
+Once a level is complete a modal appears prompting the user to go to the next level. If it's a review level it shows them stats as well.
 
-Then i used nltk and the Gutenberg corpus to generate random text for the user to type and test their speed and accuracy.
-I made two buttons on completion where the user can navigate to another speed test (generating a new text) or retrying the text they just completed. I did this by storing the text in storage therefore if the page gets reloaded by the retry button or just in general the same text will remain on the screen. But if the user presses the next test button it navigates to the next-speed-test route which pops (removes) the text from session redirects to the speed-test route and generates a new text which is then loaded onto the page. I also made the index route pop the text from session so if they navigate to the home page then back to the speed test page they'll also get a new text.
+**Speed test:**
+The speed test is for users to test their typing speed by giving them a random paragraph to type. The typing logic is the same as review levels except on completion it also saves the users stats from that test to a table in the sqlite db. This is important because it is what is used to give the user their average wpm and accuracy on the profile page. 
+To generate the random paragraph I used NLTK to download the Gutenberg corpus and used 3 txt files from it with markovify to generate a model on each one of those txt files. I then combined these models into one using markovify.combine(). I then created a function to generate a random paragraph/sentence between 50 and 100 characters long using the markovify model.
 
-I then decided that for the profile page i wanted to have the users stats e.g highest wpm their average accuracy etc shown on their profile page. I originally was storing the results of the review levels for this but i think its better to show their speed test stats rather then their review score stats. So i removed the code that was saving the review data and deleted the scores table in the db as it isn't necessary to have all that extra data.
-
-
-Chatgpt usage: i used chatgpt to generate the letter sequences of each level.
+**Use of ai:**
+I used chat gpt to help me with a decent amount of Javascript as I haven't yet learned it extensively. I used Mdn web docs as well as my knowledge from Free Code Camp’s Javascript course to make sure I fully understood every line of code before I implemented it. I also used chat gpt for all the information about NLTK and markovify on how to make and generate the random paragraph/sentence in speed test.

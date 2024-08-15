@@ -118,7 +118,6 @@ function reviewLogic(event, counters, paragraph) {
         const prevLetter = document.getElementById("char-" + counters.currentIndex);
         if (prevLetter.classList.contains("letter-space")) {
             prevLetter.textContent = "\u00A0";
-            counters.incorrectCount--;
         }
 
         if (prevLetter.classList.contains("correct")) {
