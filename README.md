@@ -1,7 +1,7 @@
 # Type Journey
 
 #### Video demo:
-https://youtu.be/cajcw2xAhu8
+https://youtu.be/1_vIZVmF9hA
 
 #### Description:
 Type Journey is a web app designed for users to learn how to touch type.
